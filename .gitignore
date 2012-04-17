@@ -1,3 +1,4 @@
 bin/*
 sources/ProjectGroup*
 sources/AutoBase.dproj.local
+tests/bin/*
