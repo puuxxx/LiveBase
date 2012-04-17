@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899.12.30 00:00:00.000.569,=D:\DelphiProjects\autobase\sources\uDrawingArea.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.571,=D:\DelphiProjects\autobase\sources\uEnvironment.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.613,=D:\DelphiProjects\autobase\tests\unit\TestuEventModel.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.184,=D:\DelphiProjects\autobase\tests\unit\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.111,D:\DelphiProjects\autobase\tests\unit\uTestuGenericCommands.pas=D:\DelphiProjects\autobase\tests\unit\TestuGenericCommands.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.411,D:\DelphiProjects\autobase\tests\unit\uTestBase.pas=D:\DelphiProjects\autobase\tests\unit\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.466,D:\DelphiProjects\autobase\tests\unit\uTestBaseObj.pas=D:\DelphiProjects\autobase\tests\unit\uTestBase.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.847,=D:\DelphiProjects\autobase\sources\uEventModel.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.265,D:\DelphiProjects\autobase\tests\unit\uTestBaseCommand.pas=D:\DelphiProjects\autobase\tests\unit\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.419,D:\DelphiProjects\autobase\tests\unit\uTestBaseCommand.pas=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.920,=D:\DelphiProjects\autobase\tests\unit\TestuBaseCommand.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.149,D:\DelphiProjects\autobase\tests\unit\uTestuDrawingArea.pas=D:\DelphiProjects\autobase\tests\unit\TestuDrawingArea.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.410,=D:\DelphiProjects\autobase\sources\DrawingArea\uGraphicPrimitive.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.859,=D:\DelphiProjects\autobase\tests\unit\TestuGenericCommands.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.676,D:\DelphiProjects\autobase\tests\unit\uTestEventModel.pas=D:\DelphiProjects\autobase\tests\unit\uEventModel.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.158,=D:\DelphiProjects\autobase\sources\Commands\uBaseCommand.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.404,D:\DelphiProjects\autobase\tests\unit\uEventModel.pas=D:\DelphiProjects\autobase\tests\unit\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.997,=D:\DelphiProjects\autobase\sources\Commands\uGenericCommands.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.484,=D:\DelphiProjects\autobase\tests\unit\TestuDrawingArea.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.031,=D:\DelphiProjects\autobase\tests\unit\TestuGraphicPrimitive.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.877,=D:\DelphiProjects\autobase\tests\unit\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.973,=D:\DelphiProjects\autobase\tests\unit\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.613,=D:\DelphiProjects\autobase\tests\unit\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.312,D:\DelphiProjects\autobase\tests\unit\TestuGraphicPrimitive.pas=D:\DelphiProjects\autobase\tests\unit\uTestuGraphicPrimitive.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.746,D:\DelphiProjects\autobase\tests\unit\uTestuBaseCommand.pas=D:\DelphiProjects\autobase\tests\unit\TestuBaseCommand.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.383,=D:\DelphiProjects\autobase\tests\unit\Unit1.pas</Transaction>
+  </Transactions>
+</BorlandProject>

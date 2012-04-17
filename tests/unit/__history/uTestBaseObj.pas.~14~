@@ -1,0 +1,35 @@
+unit uTestBaseObj;
+
+interface
+
+uses TestFrameWork, SysUtils, uBase;
+
+type
+  TTestBaseObj = class( TTestCase )
+  published
+    procedure TestID;
+  end;
+
+implementation
+
+
+{ TTestBaseObj }
+
+procedure TTestBaseObj.TestID;
+var
+  BaseObj : TBaseObject;
+  G : TGUID;
+begin
+  BaseObj := TBaseObject.Create;
+  try
+    G := BaseObj.ID;
+
+  finally
+    FreeAndNil( BaseObj );
+  end;
+end;
+
+initialization
+  TestFramework.RegisterTest( TTestBaseObj.Suite );
+
+end.

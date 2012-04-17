@@ -1,0 +1,44 @@
+program AutoBase;
+
+uses
+  Windows,
+  Vcl.Forms,
+  uRootForm in 'uRootForm.pas' {fmRoot},
+  uEventModel in 'uEventModel.pas',
+  uBase in 'uBase.pas',
+  uExceptions in 'uExceptions.pas',
+  uExceptionCodes in 'uExceptionCodes.pas',
+  uDrawingArea in 'uDrawingArea.pas',
+  uBaseCommand in 'Commands\uBaseCommand.pas',
+  uGenericCommands in 'Commands\uGenericCommands.pas',
+  uEnvironment in 'uEnvironment.pas',
+  uStrings in 'uStrings.pas',
+  ufmBase in 'Forms\ufmBase.pas' {fmBase},
+  ufmMain in 'Forms\ufmMain.pas' {fmMain},
+  uBaseEquipment in 'Equipment\uBaseEquipment.pas',
+  uGraphicPrimitive in 'DrawingArea\uGraphicPrimitive.pas',
+  uDrawingPage in 'DrawingArea\uDrawingPage.pas',
+  uDrawingTypes in 'DrawingArea\uDrawingTypes.pas';
+
+{$R *.res}
+
+var
+  LaunchCmd : TLaunchCommand;
+begin
+  Application.Initialize;
+  Application.Title := APP_TITLE;
+
+  Application.CreateForm(TfmMain, fmMain);
+  ShowWindow (Application.Handle, SW_HIDE);
+  LaunchCmd := TLaunchCommand.Create;
+  try
+    LaunchCmd.Execute;
+    while not Application.Terminated do begin
+      WaitMessage;
+      Application.ProcessMessages;
+    end;
+    LaunchCmd.UnExecute;
+  finally
+    LaunchCmd.Free;
+  end;
+end.
