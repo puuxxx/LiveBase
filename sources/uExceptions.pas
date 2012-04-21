@@ -2,7 +2,7 @@ unit uExceptions;
 
 interface
 
-uses SysUtils;
+uses SysUtils, uExceptionCodes;
 
   type
 
@@ -14,8 +14,16 @@ uses SysUtils;
 
     procedure RaiseExeption( const aCode : integer );
     procedure RaiseFatalException( const aCode : integer );
+    procedure ContractFailure;
+
+    procedure Warn( const aMessage : string );
 
 implementation
+
+procedure ContractFailure;
+begin
+  RaiseExeption( CONTRACT_EXCEPT );
+end;
 
 procedure RaiseExeption( const aCode : integer );
 begin
@@ -25,6 +33,11 @@ end;
 procedure RaiseFatalException( const aCode : integer );
 begin
   raise TFatalException.Create('Error message');
+end;
+
+procedure Warn( const aMessage : string );
+begin
+  //
 end;
 
 end.

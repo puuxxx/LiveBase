@@ -3,7 +3,9 @@ unit uExceptionCodes;
 interface
 
   const
-    SYS_EXCEPT = 1;
+    CONTRACT_EXCEPT = -1000;
+    SYS_EXCEPT      = 1;
+    DRAW_EXCEPT     = 2;
 
 implementation
 

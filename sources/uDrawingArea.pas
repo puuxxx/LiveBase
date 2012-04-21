@@ -1,86 +1,55 @@
 unit uDrawingArea;
 
 interface
-uses SysUtils, uBase, uEventModel, Graphics, System.UITypes;
+  uses SysUtils, uBase, uEventModel, Graphics, System.UITypes, uDrawingPage;
 
-type
-  TDrawingArea = class ( TBaseSubscriber )
-  strict private
-    FWidth, FHeight : integer;
-    FEventModel : TEventModel;
-    FActive : boolean;
-    FLastAreaBitmap : TBitMap;
 
-  private
-    function GetBitmap: TBitmap;
-  public
-    constructor Create( const aEventModel : TEventModel; const aInitW, aInitH : integer );
-    destructor Destroy; override;
+  type
+    TDrawingArea = class ( TBaseSubscriber )
+    strict private
+      FEventModel : TEventModel;
+      FActive : boolean;
+      FPage : TDrawingPage;
+    private
+      function GetBitmap: TBitmap;
+    public
+      constructor Create( const aEventModel : TEventModel );
+      destructor Destroy; override;
 
-    procedure OnMouseMove( const aX, aY : integer );
-    procedure OnMouseLeave;
-    procedure OnMouseDown( const aButton: TMouseButton; const aX, aY: Integer);
-    procedure OnMouseUp ( const aButton: TMouseButton; aX, aY: Integer );
-    procedure OnMouseClick( const aX, aY : integer );
-    procedure OnMouseDblClick( const aX, aY : integer );
+      procedure OnNewSize( const aWidth, aHeight : integer );
 
-    property AreaBitmap : TBitmap read GetBitmap;
-  end;
+      property AreaBitmap : TBitmap read GetBitmap;
+    end;
 
 implementation
 
+
+
 { TDrawingArea }
 
-constructor TDrawingArea.Create( const aEventModel : TEventModel; const aInitW, aInitH: integer );
+constructor TDrawingArea.Create( const aEventModel : TEventModel );
 begin
   inherited Create;
-  FWidth := aInitW;
-  FHeight := aInitH;
   FActive := false;
   FEventModel := aEventModel;
-  FLastAreaBitmap := nil;
+
+  FPage := TDrawingPage.Create;
 end;
 
 destructor TDrawingArea.Destroy;
 begin
-
+  FreeANdNil( FPage );
   inherited;
 end;
 
 function TDrawingArea.GetBitmap: TBitmap;
 begin
-  Result := nil;
+  Result := FPage.GetBitmap;
 end;
 
-procedure TDrawingArea.OnMouseClick(const aX, aY: integer);
+procedure TDrawingArea.OnNewSize(const aWidth, aHeight: integer);
 begin
-//
-end;
-
-procedure TDrawingArea.OnMouseDblClick(const aX, aY: integer);
-begin
-//
-end;
-
-procedure TDrawingArea.OnMouseDown(const aButton: TMouseButton; const aX,
-  aY: Integer);
-begin
-//
-end;
-
-procedure TDrawingArea.OnMouseLeave;
-begin
-//
-end;
-
-procedure TDrawingArea.OnMouseMove(const aX, aY: integer);
-begin
-//
-end;
-
-procedure TDrawingArea.OnMouseUp(const aButton: TMouseButton; aX, aY: Integer);
-begin
-//
+  FPage.NewSize( aWidth, aHeight );
 end;
 
 end.

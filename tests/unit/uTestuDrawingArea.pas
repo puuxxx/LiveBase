@@ -33,7 +33,6 @@ implementation
 procedure TestTDrawingArea.SetUp;
 begin
   FEventModel := TEventModel.Create;
-  FDrawingArea := TDrawingArea.Create( FEventModel, 11, 11 );
 end;
 
 procedure TestTDrawingArea.TearDown;

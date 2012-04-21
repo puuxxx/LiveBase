@@ -28,7 +28,6 @@ begin
   Application.Initialize;
   Application.Title := APP_TITLE;
 
-  Application.CreateForm(TfmMain, fmMain);
   ShowWindow (Application.Handle, SW_HIDE);
   LaunchCmd := TLaunchCommand.Create;
   try

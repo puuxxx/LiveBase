@@ -12,22 +12,10 @@ unit uTestuGraphicPrimitive;
 interface
 
 uses
-  TestFramework, uExceptionCodes, Winapi.Windows, uExceptions, Graphics, uBase,
-  uEventModel, uGraphicPrimitive;
+  TestFramework, Windows, uExceptionCodes, uExceptions, GdiPlus, Classes, SysUtils,
+  uDrawingSupport, Graphics, uBase, uEventModel, uGraphicPrimitive;
 
 type
-  // Test methods for class TPoints
-
-  TestTPoints = class(TTestCase)
-  strict private
-    FPoints: TPoints;
-  public
-    procedure SetUp; override;
-    procedure TearDown; override;
-  published
-    procedure TestAdd;
-    procedure TestClear;
-  end;
   // Test methods for class TGraphicPrimitive
 
   TestTGraphicPrimitive = class(TTestCase)
@@ -38,53 +26,14 @@ type
     procedure TearDown; override;
   published
     procedure TestDraw;
+    procedure TestRemoveAllChildren;
+    procedure TestDelChild;
+    procedure TestDelChild1;
+    procedure TestParent;
+    procedure TestIndexColor;
   end;
 
 implementation
-
-procedure TestTPoints.SetUp;
-begin
-  FPoints := TPoints.Create;
-end;
-
-procedure TestTPoints.TearDown;
-begin
-  FPoints.Free;
-  FPoints := nil;
-end;
-
-procedure TestTPoints.TestAdd;
-var
-  aY: Integer;
-  aX: Integer;
-  i : integer;
-  P : TPoint;
-  ok : boolean;
-begin
-  aX := 100;
-  aY := 100;
-
-  Check( FPoints.Count = 0, 'Add point' );
-  FPoints.Add(aX, aY);
-  Check( FPoints.Count = 1, 'Add point 2' );
-  for I := Low(Word) to High(Word) do FPoints.Add( ax, aY );
-  Check( FPoints.Count = High(Word) - Low(Word) + 2 , 'Add point 3');
-
-  P := FPoints.Point[0];
-  CheckEquals( 100, P.X, 'Point X');
-  CheckEquals( 100, P.Y, 'Point Y');
-
-end;
-
-procedure TestTPoints.TestClear;
-var
-  i : integer;
-begin
-  for I := Low(Word) to High(Word) do FPoints.Add( 1, 1 );
-  Check( FPoints.Count > 100, 'Add before clear' );
-  FPoints.Clear;
-  Check( FPoints.Count = 0, 'Points clear' );
-end;
 
 procedure TestTGraphicPrimitive.SetUp;
 begin
@@ -99,16 +48,108 @@ end;
 
 procedure TestTGraphicPrimitive.TestDraw;
 var
-  aBitmap: Winapi.Windows.tagBITMAP;
+  aGraphics: IGPGraphics;
 begin
   // TODO: Setup method call parameters
-  FGraphicPrimitive.Draw(aBitmap);
+  FGraphicPrimitive.DrawNormal(aGraphics);
+  FGraphicPrimitive.DrawIndex(aGraphics);
   // TODO: Validate method results
 end;
 
+procedure TestTGraphicPrimitive.TestIndexColor;
+var
+  c : TColor;
+  i, j : integer;
+  Prm, RPrm : TGraphicPrimitive;
+  arr : array[0..1000] of TColor;
+begin
+  RPrm := TGraphicPrimitive.Create(nil);
+  Prm := RPrm;
+  for I := low(arr) to length(arr) - 1 do begin
+    Prm := TGraphicPrimitive.Create( Prm );
+    arr[i] := Prm.IndexColor;
+  end;
+
+  for I := low(arr) to length( arr ) - 1  do begin
+    c := arr[i];
+    for j := i + 1 to length( arr ) - 1  do begin
+      check( c <> arr[j] );
+    end;
+  end;
+
+end;
+
+procedure TestTGraphicPrimitive.TestParent;
+var
+  PrimP, PrimC  : TGraphicPrimitive;
+begin
+  PrimP := TGraphicPrimitive.Create(nil);
+  PrimC  := TGraphicPrimitive.Create( PrimP );
+  try
+    Check( PrimC.Parent = PrimP );
+    Check( PrimP.ChildCount = 1 );
+    Check( PrimP.Child[0] = PrimC );
+  finally
+    PrimP.Free;
+  end;
+end;
+
+procedure TestTGraphicPrimitive.TestRemoveAllChildren;
+var
+  i, j : integer;
+begin
+  randomize;
+  for I := 0 to 100 do begin
+    for j := 0 to random(100) do begin
+      TGraphicPrimitive.Create( FGraphicPrimitive );
+    end;
+    FGraphicPrimitive.RemoveAllChildren;
+    Check( FGraphicPrimitive.ChildCount = 0 );
+  end;
+end;
+
+procedure TestTGraphicPrimitive.TestDelChild;
+var
+  i, m : Integer;
+begin
+
+  randomize;
+  m := random(100) + 10;
+  for i := 0 to  m-1 do begin
+    TGraphicPrimitive.Create( FGraphicPrimitive );
+  end;
+
+  FGraphicPrimitive.DelChild( 0 );
+  Check( FGraphicPrimitive.ChildCount = m -1 );
+  dec( m );
+
+  FGraphicPrimitive.DelChild( m - 1 );
+  Check( FGraphicPrimitive.ChildCount = m -1 );
+end;
+
+procedure TestTGraphicPrimitive.TestDelChild1;
+var
+  aPrimitive: TGraphicPrimitive;
+  m, i : integer;
+begin
+
+  randomize;
+  m := random(100) + 10;
+  for i := 0 to  m do begin
+    TGraphicPrimitive.Create( FGraphicPrimitive );
+  end;
+
+  aPrimitive := FGraphicPrimitive.Child[0];
+  FGraphicPrimitive.DelChild(aPrimitive);
+
+  for I := 0 to FGraphicPrimitive.ChildCount-1 do begin
+    Check( FGraphicPrimitive.Child[i] <> aPrimitive );
+  end;
+end;
+
+
 initialization
   // Register any test cases with the test runner
-  RegisterTest(TestTPoints.Suite);
   RegisterTest(TestTGraphicPrimitive.Suite);
 end.
 
