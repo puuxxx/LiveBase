@@ -26,8 +26,10 @@ uses
   uEnvironment in '..\..\sources\uEnvironment.pas',
   uTestuDrawingArea in 'uTestuDrawingArea.pas',
   uDrawingArea in '..\..\sources\uDrawingArea.pas',
-  uTestuGraphicPrimitive in 'uTestuGraphicPrimitive.pas',
-  uGraphicPrimitive in '..\..\sources\DrawingArea\uGraphicPrimitive.pas';
+  uTestDrawingSupport in 'uTestDrawingSupport.pas',
+  uGraphicPrimitive in '..\..\sources\DrawingArea\uGraphicPrimitive.pas',
+  uDrawingSupport in '..\..\sources\DrawingArea\uDrawingSupport.pas',
+  uTestuGraphicPrimitive in 'uTestuGraphicPrimitive.pas';
 
 {$R *.RES}
 

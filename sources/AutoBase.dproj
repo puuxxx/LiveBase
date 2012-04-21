@@ -120,6 +120,7 @@
 			<DCCReference Include="DrawingArea\uGraphicPrimitive.pas"/>
 			<DCCReference Include="DrawingArea\uDrawingPage.pas"/>
 			<DCCReference Include="DrawingArea\uDrawingTypes.pas"/>
+			<DCCReference Include="DrawingArea\uDrawingSupport.pas"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>

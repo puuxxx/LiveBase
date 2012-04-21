@@ -18,7 +18,8 @@ uses
   uBaseEquipment in 'Equipment\uBaseEquipment.pas',
   uGraphicPrimitive in 'DrawingArea\uGraphicPrimitive.pas',
   uDrawingPage in 'DrawingArea\uDrawingPage.pas',
-  uDrawingTypes in 'DrawingArea\uDrawingTypes.pas';
+  uDrawingTypes in 'DrawingArea\uDrawingTypes.pas',
+  uDrawingSupport in 'DrawingArea\uDrawingSupport.pas';
 
 {$R *.res}
 

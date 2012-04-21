@@ -1,4 +1,12 @@
 bin/*
 sources/ProjectGroup*
 sources/AutoBase.dproj.local
+sources/AutoBaseTests.dproj.local
+sources/AutoBase.dproj
+sources/AutoBase.identcache
+tests/unit/AutoBaseTests.dproj
+tests/unit/AutoBaseTests.dproj.local
+tests/unit/AutoBaseTests.identcache
+
 tests/bin/*
+
