@@ -10,3 +10,6 @@ tests/unit/AutoBaseTests.identcache
 
 tests/bin/*
 
+sources/Profiling/*
+sources/Profiling
+sources/AutoBase_project.tvsconfig

@@ -1,9 +1,8 @@
 unit uDrawingTypes;
 
 interface
-  uses Windows;
 
-
+uses Windows;
 
 implementation
 

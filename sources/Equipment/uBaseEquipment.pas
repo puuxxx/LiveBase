@@ -2,11 +2,11 @@ unit uBaseEquipment;
 
 interface
 
-  uses uBase, uEventModel;
+uses uBase, uEventModel;
 
-  type
-    TBaseEquipment = class( TBaseSubscriber )
-    end;
+type
+  TBaseEquipment = class(TBaseSubscriber)
+  end;
 
 implementation
 

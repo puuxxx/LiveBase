@@ -4,38 +4,38 @@ interface
 
 uses SysUtils, uExceptionCodes;
 
-  type
+type
 
-    TException = class( Exception )
-    end;
+  TException = class(Exception)
+  end;
 
-    TFatalException = class( TException )
-    end;
+  TFatalException = class(TException)
+  end;
 
-    procedure RaiseExeption( const aCode : integer );
-    procedure RaiseFatalException( const aCode : integer );
-    procedure ContractFailure;
+procedure RaiseExeption(const aCode: integer);
+procedure RaiseFatalException(const aCode: integer);
+procedure ContractFailure;
 
-    procedure Warn( const aMessage : string );
+procedure Warn(const aMessage: string);
 
 implementation
 
 procedure ContractFailure;
 begin
-  RaiseExeption( CONTRACT_EXCEPT );
+  RaiseExeption(CONTRACT_EXCEPT);
 end;
 
-procedure RaiseExeption( const aCode : integer );
+procedure RaiseExeption(const aCode: integer);
 begin
   raise TException.Create('Error Message');
 end;
 
-procedure RaiseFatalException( const aCode : integer );
+procedure RaiseFatalException(const aCode: integer);
 begin
   raise TFatalException.Create('Error message');
 end;
 
-procedure Warn( const aMessage : string );
+procedure Warn(const aMessage: string);
 begin
   //
 end;

@@ -3,14 +3,16 @@ unit ufmBase;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uEventModel;
 
 type
   TfmBase = class(TForm, ISubscriber)
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
   protected
-    procedure ProcessEvent( const aEventID : TEventID; const aEventData : TEventData ); virtual;
+    procedure ProcessEvent(const aEventID: TEventID;
+      const aEventData: TEventData); virtual;
   end;
 
 implementation
@@ -25,7 +27,7 @@ end;
 procedure TfmBase.ProcessEvent(const aEventID: TEventID;
   const aEventData: TEventData);
 begin
-//
+  //
 end;
 
 end.

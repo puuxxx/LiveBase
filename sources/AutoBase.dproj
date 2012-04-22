@@ -76,6 +76,9 @@
 			<DCC_RemoteDebug>true</DCC_RemoteDebug>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+			<ILINK_FullDebugInfo>true</ILINK_FullDebugInfo>
+			<BCC_SourceDebuggingOn>true</BCC_SourceDebuggingOn>
+			<BCC_DebugLineNumbers>true</BCC_DebugLineNumbers>
 			<VerInfo_Locale>1033</VerInfo_Locale>
 			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
 			<DCC_DcpOutput>D:\DelphiFiles\dcp\</DCC_DcpOutput>
@@ -121,6 +124,10 @@
 			<DCCReference Include="DrawingArea\uDrawingPage.pas"/>
 			<DCCReference Include="DrawingArea\uDrawingTypes.pas"/>
 			<DCCReference Include="DrawingArea\uDrawingSupport.pas"/>
+			<DCCReference Include="DrawingArea\uDrawingCommand.pas"/>
+			<DCCReference Include="DrawingArea\uCommandData.pas"/>
+			<DCCReference Include="DrawingArea\uDrawingEvent.pas"/>
+			<None Include="Profiling\AQtimeModule1.aqt"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>

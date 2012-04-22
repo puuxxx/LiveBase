@@ -29,7 +29,9 @@ uses
   uTestDrawingSupport in 'uTestDrawingSupport.pas',
   uGraphicPrimitive in '..\..\sources\DrawingArea\uGraphicPrimitive.pas',
   uDrawingSupport in '..\..\sources\DrawingArea\uDrawingSupport.pas',
-  uTestuGraphicPrimitive in 'uTestuGraphicPrimitive.pas';
+  uTestuGraphicPrimitive in 'uTestuGraphicPrimitive.pas',
+  uTestuDrawingPage in 'uTestuDrawingPage.pas',
+  uDrawingPage in '..\..\sources\DrawingArea\uDrawingPage.pas';
 
 {$R *.RES}
 
