@@ -257,6 +257,7 @@ end;
 
 procedure TBackground.Draw(const aGraphics: IGPGraphics);
 begin
+  with GetDrawingBox do SolidBrush.Color := GPColor( BackgroundColor );
   aGraphics.FillRectangle( GetDrawingBox.SolidBrush, 0, 0, FirstPoint.X, FirstPoint.Y );
 end;
 

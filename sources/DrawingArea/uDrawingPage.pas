@@ -10,6 +10,7 @@ interface
       FRoot : TBackground;
       FBitMap : TBitMap;
       FGraphics : IGPGraphics;
+
     public
       constructor Create;
       destructor Destroy; override;
@@ -17,6 +18,8 @@ interface
       procedure NewSize( const aWidth, aHeight : integer );
 
       function GetBitmap : TBitMap;
+
+      property BackgroundPrimitive : TBackground read FRoot;
     end;
 implementation
 

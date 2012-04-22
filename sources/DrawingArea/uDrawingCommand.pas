@@ -5,7 +5,11 @@ interface
   uses uBase, uBaseCommand, uGraphicPrimitive, Graphics, uExceptions;
 
   type
-    TBaseDrawingCommand = class( TBaseCommand )
+    TDrawingCommandType = ( dctBackground );
+
+    TBaseDrawingCommand = class
+    public
+      procedure Execute( const aPrimitive : TGraphicPrimitive; const aData : array of variant ); virtual; abstract;
     end;
 
     TChangeBackgroundColorCommand = class( TBaseDrawingCommand )
@@ -13,44 +17,34 @@ interface
       PrimitiveID : TGuid;
       OldBackgroundColor : TColor;
     public
-      procedure Execute( const aData : variant ); override;
+      procedure Execute( const aPrimitive : TGraphicPrimitive; const aData : array of variant ); override;
     end;
 
-
-    function DrawingCommandFactory : TBaseDrawingCommand;
-    function DrawingCommandDataFactory : Variant;
+    function DrawingCommandFactory( const aCommandType : TDrawingCommandType ) : TBaseDrawingCommand;
 
 implementation
 
-function DrawingCommandFactory : TBaseDrawingCommand;
+const
+  DrawingCommandsClasses : array[ TDrawingCommandType ] of TClass = (
+    TChangeBackgroundColorCommand );
+
+
+function DrawingCommandFactory( const aCommandType : TDrawingCommandType ) : TBaseDrawingCommand;
 begin
-  //
+  Result := DrawingCommandsClasses[ aCommandType ].Create as TBaseDrawingCommand;
 end;
 
-function DrawingCommandDataFactory : Variant;
-begin
-  //
-end;
 
 { TChangeBackgroundColorCommand }
 
-procedure TChangeBackgroundColorCommand.Execute( const aData :  Variant );
-var
-  Color : TColor;
-  Primitive : TGraphicPrimitive;
+procedure TChangeBackgroundColorCommand.Execute( const aPrimitive : TGraphicPrimitive; const aData : array of variant );
 begin
+  if length( aData ) <> 1 then ContractFailure;
 
-{
-  if aData = nil then ContractFailure;
-  if not ( aData is TColorCommandData ) then ContractFailure;
+  PrimitiveID := aPrimitive.ID;
+  OldBackgroundColor := aPrimitive.BackgroundColor;
 
-  Data := aData as TColorCommandData;
-
-  PrimitiveID := Data.Primitive.ID;
-  OldBackgroundColor := Data.Primitive.BackgroundColor;
-
-  Data.Primitive.BackgroundColor := Data.Color;
-}
+  aPrimitive.BackgroundColor := TColor( aData[0] );
 end;
 
 end.

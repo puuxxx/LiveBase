@@ -7,18 +7,19 @@ interface
   type
     TEventID = string;
     TEventData = TBaseObject;
-    ISubscriber<T> = interface
-      procedure ProcessEvent( const aEventID : TEventID; const aEventData : T );
+    ISubscriber = interface
+      procedure ProcessEvent( const aEventID : TEventID; const aEventData : TEventData );
     end;
-    TBaseSubscriber = class( TBaseObject, ISubscriber<TObject> )
-      procedure ProcessEvent( const aEventID : TEventID; const aEventData : TObject ); virtual;
-      function Me : TBaseSubscriber;
+
+    TBaseSubscriber = class( TBaseObject, ISubscriber )
+      procedure ProcessEvent( const aEventID : TEventID; const aEventData : TEventData ); virtual;
     end;
+
 
     TInnerEventData = class( TBaseObject )
     public
       EventID : TEventID;
-      Subscriber : TBaseSubscriber;
+      Subscriber : ISubscriber;
     end;
 
     TEventModel = class( TBaseObject )
@@ -28,9 +29,9 @@ interface
       constructor Create;
       destructor Destroy; override;
 
-      procedure RegisterSubscriber( const aEventID : TEventID; const aSubscriber : TBaseSubscriber );
-      procedure UnRegister( const aEventID : TEventID; const aSubscriber : TBaseSubscriber ); overload;
-      procedure UnRegister( const aSubscriber : TBaseSubscriber ); overload;
+      procedure RegisterSubscriber( const aEventID : TEventID; const aSubscriber : ISubscriber );
+      procedure UnRegister( const aEventID : TEventID; const aSubscriber : ISubscriber ); overload;
+      procedure UnRegister( const aSubscriber : ISubscriber ); overload;
       procedure Event( const aEventID : TEventID; const aEventData : TEventData );
     end;
 
@@ -39,13 +40,8 @@ implementation
 
 { TBaseSubscriber }
 
-function TBaseSubscriber.Me: TBaseSubscriber;
-begin
-  Result := Self;
-end;
-
 procedure TBaseSubscriber.ProcessEvent(const aEventID: TEventID;
-  const aEventData: TObject);
+  const aEventData: TEventData );
 begin
   RaiseFatalException( SYS_EXCEPT );
 end;
@@ -77,7 +73,7 @@ begin
 end;
 
 procedure TEventModel.RegisterSubscriber(const aEventID: TEventID;
-  const aSubscriber: TBaseSubscriber);
+  const aSubscriber: ISubscriber);
 var
   InnerData : TInnerEventData;
 begin
@@ -88,7 +84,7 @@ begin
   FList.Add( InnerData );
 end;
 
-procedure TEventModel.UnRegister(const aSubscriber: TBaseSubscriber);
+procedure TEventModel.UnRegister(const aSubscriber: ISubscriber);
 var
   i : integer;
   InnerData : TInnerEventData;
@@ -105,7 +101,7 @@ begin
 end;
 
 procedure TEventModel.UnRegister(const aEventID: TEventID;
-  const aSubscriber: TBaseSubscriber);
+  const aSubscriber: ISubscriber);
 var
   InnerData : TInnerEventData;
   i : integer;

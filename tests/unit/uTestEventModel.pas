@@ -26,7 +26,7 @@ type
   TTestSubscriber = class ( TBaseSubscriber )
   public
     Val : integer;
-    procedure ProcessEvent( const aEventID : TEventID; const aEventData : TObject ); override;
+    procedure ProcessEvent( const aEventID : TEventID; const aEventData : TEventData ); override;
   end;
 
 
@@ -37,8 +37,6 @@ var
   EventData : TEventData;
 begin
   Subscriber := TTestSubscriber.Create;
-  Check( Subscriber.Me <> nil , 'Subscriber.Me not NULL' );
-  Check( Subscriber.Me = Subscriber , 'Subscriber = Subscriber.Me' );
 
   Subscriber.Val := VAL_FAIL;
 
@@ -57,7 +55,10 @@ begin
     EventModel.Event( EVENT_ID, EventData );
     CheckNotEquals( Subscriber.Val, VAL_OK, 'Check Event Unregister');
 
-    EventModel.RegisterSubscriber( EVENT_ID, Subscriber );
+
+    Subscriber := TTestSubscriber.Create;
+    Subscriber.Val := VAL_FAIL;
+    EventModel.RegisterSubscriber( EVENT_ID,  Subscriber );
     EventModel.UnRegister( Subscriber );
     Subscriber.Val := VAL_FAIL;
     EventModel.Event( EVENT_ID, EventData );
@@ -72,7 +73,7 @@ end;
 { TTestSubscriber }
 
 procedure TTestSubscriber.ProcessEvent(const aEventID: TEventID;
-  const aEventData: TObject);
+  const aEventData: TEventData );
 begin
   Val := VAL_OK;
   if aEventData is TBaseObject then begin

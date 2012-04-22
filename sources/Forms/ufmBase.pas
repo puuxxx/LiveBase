@@ -4,15 +4,13 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uEventModel;
 
 type
-  TfmBase = class(TForm)
+  TfmBase = class(TForm, ISubscriber)
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
-  private
-    { Private declarations }
-  public
-    { Public declarations }
+  protected
+    procedure ProcessEvent( const aEventID : TEventID; const aEventData : TEventData ); virtual;
   end;
 
 implementation
@@ -22,6 +20,12 @@ implementation
 procedure TfmBase.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   Action := caFree;
+end;
+
+procedure TfmBase.ProcessEvent(const aEventID: TEventID;
+  const aEventData: TEventData);
+begin
+//
 end;
 
 end.
