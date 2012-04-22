@@ -9,11 +9,11 @@ uses
 
 type
   TfmMain = class(TfmBase)
-    Panel1: TPanel;
     pb: TPaintBox;
+    Panel1: TPanel;
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender: TObject);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure pbPaint(Sender: TObject);
   private
     FArea : TDrawingArea;
@@ -33,13 +33,11 @@ uses uEnvironment;
 procedure TfmMain.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   inherited;
-
   Application.Terminate;
 end;
 
 procedure TfmMain.FormCreate(Sender: TObject);
 begin
-  inherited;
   FArea := TDrawingArea.Create( Env.EventModel );
 end;
 
@@ -50,9 +48,7 @@ end;
 
 procedure TfmMain.pbPaint(Sender: TObject);
 begin
-  pb.Canvas.Lock;
-  pb.Canvas.Draw(0, 0, FArea.AreaBitmap );
-  pb.Canvas.Unlock;
+  pb.Canvas.Draw( 0, 0, FArea.AreaBitmap );
 end;
 
 end.

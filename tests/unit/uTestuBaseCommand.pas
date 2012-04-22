@@ -55,15 +55,14 @@ end;
 
 procedure TestTBaseCommand.TestExecute1;
 var
-  aData: TBaseObject;
+  aData: Variant;
 begin
   SetUp;
-  aData := TBaseObject.Create;
+  aData := 111;
   try
     FBaseCommand.Execute(aData);
   finally
     TearDown;
-    aData.Free;
   end;
 end;
 

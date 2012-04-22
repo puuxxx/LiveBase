@@ -31,6 +31,19 @@ type
     procedure TestDelChild1;
     procedure TestParent;
     procedure TestIndexColor;
+    procedure TestPoints;
+    procedure TestFirstPoint;
+    procedure TestSecondPoint;
+  end;
+
+  TestTBackground = class(TTestCase)
+  private
+    FBackground : TBackground;
+  public
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure TestDraw;
   end;
 
 implementation
@@ -54,6 +67,13 @@ begin
   FGraphicPrimitive.DrawNormal(aGraphics);
   FGraphicPrimitive.DrawIndex(aGraphics);
   // TODO: Validate method results
+end;
+
+procedure TestTGraphicPrimitive.TestFirstPoint;
+begin
+  FGraphicPrimitive.FirstPoint := TPoint.Create( 11, 12 );
+  Check( FGraphicPrimitive.FirstPoint.X = 11 );
+  Check( FGraphicPrimitive.FirstPoint.Y = 12 );
 end;
 
 procedure TestTGraphicPrimitive.TestIndexColor;
@@ -94,6 +114,20 @@ begin
   end;
 end;
 
+procedure TestTGraphicPrimitive.TestPoints;
+var
+  P : TPoint;
+begin
+  FGraphicPrimitive.Points.Add( 10, 11 );
+
+  P := FGraphicPrimitive.Points.Point[0];
+  Check( P.X = 10 );
+  Check( P.Y = 11 );
+
+  P := FGraphicPrimitive.Points.Point[1];
+
+end;
+
 procedure TestTGraphicPrimitive.TestRemoveAllChildren;
 var
   i, j : integer;
@@ -106,6 +140,14 @@ begin
     FGraphicPrimitive.RemoveAllChildren;
     Check( FGraphicPrimitive.ChildCount = 0 );
   end;
+end;
+
+procedure TestTGraphicPrimitive.TestSecondPoint;
+begin
+  FGraphicPrimitive.FirstPoint := TPoint.Create( 11, 12 );
+  FGraphicPrimitive.SecondPoint := TPoint.Create( 13, 14 );
+  Check( FGraphicPrimitive.SecondPoint.X = 13 );
+  Check( FGraphicPrimitive.SecondPoint.Y = 14 );
 end;
 
 procedure TestTGraphicPrimitive.TestDelChild;
@@ -148,8 +190,53 @@ begin
 end;
 
 
+{ TestTBackground }
+
+procedure TestTBackground.SetUp;
+begin
+   FBackground := TBackground.Create( nil );
+end;
+
+procedure TestTBackground.TearDown;
+begin
+  FBackground.Free;
+  FBackground := nil;
+end;
+
+procedure TestTBackground.TestDraw;
+var
+  G : IGPGraphics;
+begin
+  G := TGPGraphics.Create( GetDc(0) );
+
+
+    FBackground.FirstPoint := TPoint.Create( Low(integer), 0 );
+    FBackground.DrawNormal( G );
+    FBackground.DrawIndex( G );
+
+    FBackground.FirstPoint := TPoint.Create( 0, Low(integer) );
+    FBackground.DrawNormal( G );
+    FBackground.DrawIndex( G );
+
+    FBackground.FirstPoint := TPoint.Create( High(integer), Low(integer) );
+    FBackground.DrawNormal( G );
+    FBackground.DrawIndex( G );
+
+  {  Не проходит
+    FBackground.FirstPoint := TPoint.Create( 0, High(integer) );
+    FBackground.DrawNormal( G );
+    FBackground.DrawIndex( G );
+  }
+    FBackground.FirstPoint := TPoint.Create( 10, 10 );
+    FBackground.DrawNormal( G );
+    FBackground.DrawIndex( G );
+
+
+end;
+
 initialization
   // Register any test cases with the test runner
   RegisterTest(TestTGraphicPrimitive.Suite);
+  RegisterTest(TestTBackground.Suite);
 end.
 

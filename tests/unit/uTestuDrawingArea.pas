@@ -43,8 +43,25 @@ begin
 end;
 
 procedure TestTDrawingArea.TestOne;
+var
+  i : integer;
 begin
+
+  FDrawingArea.OnNewSize( Low(Integer), 1 );
   FDrawingArea.AreaBitmap;
+  FDrawingArea.OnNewSize( 1, Low(Integer) );
+  FDrawingArea.AreaBitmap;
+
+  FDrawingArea.OnNewSize( High(Integer), 1 );
+  FDrawingArea.AreaBitmap;
+  FDrawingArea.OnNewSize( 1, High(Integer) );
+  FDrawingArea.AreaBitmap;
+
+  for I := -100 to 100 do begin
+    FDrawingArea.OnNewSize( i, abs( i ) );
+    FDrawingArea.AreaBitmap;
+  end;
+
 end;
 
 initialization

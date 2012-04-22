@@ -8,7 +8,6 @@ interface
     TDrawingArea = class ( TBaseSubscriber )
     strict private
       FEventModel : TEventModel;
-      FActive : boolean;
       FPage : TDrawingPage;
     private
       function GetBitmap: TBitmap;
@@ -30,9 +29,7 @@ implementation
 constructor TDrawingArea.Create( const aEventModel : TEventModel );
 begin
   inherited Create;
-  FActive := false;
   FEventModel := aEventModel;
-
   FPage := TDrawingPage.Create;
 end;
 

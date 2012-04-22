@@ -18,8 +18,8 @@ interface
     public
       constructor Create;
       destructor Destroy; override;
-      procedure Add( const aX, aY : integer );
-      procedure AddPoint( const aPoint : TPoint );
+      procedure Add( const aX, aY : integer ); overload;
+      procedure Add( const aPoint : TPoint ); overload;
       procedure Clear;
       property Count : integer read FCount;
       property Point[ aIndex : integer ] : TPoint read GetPount write SetPoint;
@@ -58,10 +58,10 @@ end;
 
 procedure TPoints.Add(const aX, aY: integer);
 begin
-  AddPoint( TPoint.Create( aX, aY ) );
+  Add( TPoint.Create( aX, aY ) );
 end;
 
-procedure TPoints.AddPoint(const aPoint: TPoint);
+procedure TPoints.Add(const aPoint: TPoint);
 const
   AddCount = 5;
 begin

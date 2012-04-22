@@ -79,7 +79,7 @@ begin
   CheckEquals( 100, P.X, 'Point X');
   CheckEquals( 100, P.Y, 'Point Y');
 
-  FPoints.AddPoint( P );
+  FPoints.Add( P );
   Check( FPoints.Count = High(Word) - Low(Word) + 3, 'Add point Obj' );
 
   P := FPoints.Point[1];

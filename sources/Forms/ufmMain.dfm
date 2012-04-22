@@ -1,4 +1,5 @@
 inherited fmMain: TfmMain
+  DoubleBuffered = True
   OnCreate = FormCreate
   OnResize = FormResize
   ExplicitWidth = 624
@@ -6,24 +7,21 @@ inherited fmMain: TfmMain
   PixelsPerInch = 120
   TextHeight = 16
   object pb: TPaintBox
-    Left = 97
+    Left = 129
     Top = 0
-    Width = 519
+    Width = 487
     Height = 395
     Align = alClient
     OnPaint = pbPaint
-    ExplicitLeft = 456
-    ExplicitTop = 208
-    ExplicitWidth = 105
-    ExplicitHeight = 105
+    ExplicitLeft = 121
   end
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 97
+    Width = 129
     Height = 395
     Align = alLeft
-    Caption = 'Panel1'
+    BevelOuter = bvNone
     TabOrder = 0
   end
 end
