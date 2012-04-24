@@ -54,23 +54,14 @@ procedure TDrawingArea.ExecuteCommand( const aCommandType : TDrawingCommandType;
   aPrimitive : TGraphicPrimitive; const aValue : variant );
 var
   Command : TBaseDrawingCommand;
-  EventData : TDrawingEventData;
+
 begin
   Command := DrawingCommandFactory( aCommandType );
-  Command.Execute( aPrimitive, [ aValue ] );
+  Command.Execute( aPrimitive, aValue );
 
   FCommands.Insert( 0, Command );
   if FCommands.Count > COMMANDS_LIST_MAX_SIZE then begin
     FCommands.Delete( FCommands.Count - 1 );
-  end;
-
-  EventData := TDrawingEventData.Create;
-  EventData.Primitive := aPrimitive;
-  EventData.Color := TColor( aValue );
-  try
-    FEventModel.Event( CHANGE_BACKGROUND_COLOR, EventData );
-  finally
-    FreeANdNil( EventData );
   end;
 end;
 
@@ -92,6 +83,10 @@ end;
 procedure TDrawingArea.SetBackgroundColor(const Value: TColor);
 begin
   ExecuteCommand( dctBackground, FPage.BackgroundPrimitive, Value );
+
+  // информируем о изменении цвета фона
+  FEventModel.Event( EVENT_BACKGROUND_COLOR,
+    TDrawingCommandData.CreateData( FPage.BackgroundPrimitive, Value ) );
 end;
 
 

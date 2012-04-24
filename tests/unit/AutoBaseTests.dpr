@@ -31,7 +31,13 @@ uses
   uDrawingSupport in '..\..\sources\DrawingArea\uDrawingSupport.pas',
   uTestuGraphicPrimitive in 'uTestuGraphicPrimitive.pas',
   uTestuDrawingPage in 'uTestuDrawingPage.pas',
-  uDrawingPage in '..\..\sources\DrawingArea\uDrawingPage.pas';
+  uDrawingPage in '..\..\sources\DrawingArea\uDrawingPage.pas',
+  uTestuDrawingCommand in 'uTestuDrawingCommand.pas',
+  uDrawingCommand in '..\..\sources\DrawingArea\uDrawingCommand.pas',
+  uTestuDrawingEvent in 'uTestuDrawingEvent.pas',
+  uDrawingEvent in '..\..\sources\DrawingArea\uDrawingEvent.pas',
+  uLines in '..\..\lib\VarArrays\uLines.pas',
+  uVarArrays in '..\..\lib\VarArrays\uVarArrays.pas';
 
 {$R *.RES}
 

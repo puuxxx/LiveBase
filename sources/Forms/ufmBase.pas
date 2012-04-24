@@ -11,8 +11,7 @@ type
   TfmBase = class(TForm, ISubscriber)
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
   protected
-    procedure ProcessEvent(const aEventID: TEventID;
-      const aEventData: TEventData); virtual;
+    procedure ProcessEvent(const aEventID: TEventID; const aEventData: variant ); virtual;
   end;
 
 implementation
@@ -24,8 +23,8 @@ begin
   Action := caFree;
 end;
 
-procedure TfmBase.ProcessEvent(const aEventID: TEventID;
-  const aEventData: TEventData);
+procedure TfmBase.ProcessEvent( const aEventID: TEventID;
+  const aEventData: variant );
 begin
   //
 end;

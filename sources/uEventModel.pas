@@ -6,13 +6,12 @@ interface
 
   type
     TEventID = string;
-    TEventData = TBaseObject;
     ISubscriber = interface
-      procedure ProcessEvent( const aEventID : TEventID; const aEventData : TEventData );
+      procedure ProcessEvent( const aEventID : TEventID; const aEventData : variant );
     end;
 
     TBaseSubscriber = class( TBaseObject, ISubscriber )
-      procedure ProcessEvent( const aEventID : TEventID; const aEventData : TEventData ); virtual;
+      procedure ProcessEvent( const aEventID : TEventID; const aEventData : variant ); virtual;
     end;
 
 
@@ -32,7 +31,7 @@ interface
       procedure RegisterSubscriber( const aEventID : TEventID; const aSubscriber : ISubscriber );
       procedure UnRegister( const aEventID : TEventID; const aSubscriber : ISubscriber ); overload;
       procedure UnRegister( const aSubscriber : ISubscriber ); overload;
-      procedure Event( const aEventID : TEventID; const aEventData : TEventData );
+      procedure Event( const aEventID : TEventID; const aEventData : variant );
     end;
 
 
@@ -40,8 +39,7 @@ implementation
 
 { TBaseSubscriber }
 
-procedure TBaseSubscriber.ProcessEvent(const aEventID: TEventID;
-  const aEventData: TEventData );
+procedure TBaseSubscriber.ProcessEvent(const aEventID: TEventID; const aEventData: variant );
 begin
   RaiseFatalException( SYS_EXCEPT );
 end;
@@ -60,8 +58,7 @@ begin
   inherited;
 end;
 
-procedure TEventModel.Event(const aEventID: TEventID;
-  const aEventData: TEventData);
+procedure TEventModel.Event(const aEventID: TEventID; const aEventData: variant );
 var
   InnerData : TInnerEventData;
 begin

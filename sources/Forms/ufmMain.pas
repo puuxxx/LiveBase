@@ -23,8 +23,7 @@ type
   private
     FArea: TDrawingArea;
   protected
-    procedure ProcessEvent(const aEventID: TEventID;
-      const aEventData: TEventData); override;
+    procedure ProcessEvent( const aEventID: TEventID; const aEventData: variant ); override;
   public
     { Public declarations }
   end;
@@ -53,7 +52,7 @@ end;
 procedure TfmMain.FormCreate(Sender: TObject);
 begin
   FArea := TDrawingArea.Create(Env.EventModel);
-  Env.EventModel.RegisterSubscriber(CHANGE_BACKGROUND_COLOR, Self);
+  Env.EventModel.RegisterSubscriber( EVENT_BACKGROUND_COLOR, Self);
   ColorBox1Change(nil);
 end;
 
@@ -73,15 +72,10 @@ begin
   pb.Canvas.Draw(0, 0, FArea.AreaBitmap);
 end;
 
-procedure TfmMain.ProcessEvent(const aEventID: TEventID;
-  const aEventData: TEventData);
-var
-  Data: TDrawingEventData;
+procedure TfmMain.ProcessEvent( const aEventID: TEventID; const aEventData: variant );
 begin
-  if aEventID = CHANGE_BACKGROUND_COLOR then
-  begin
-    Data := TDrawingEventData(aEventData);
-    pbBackground.Color := Data.Color;
+  if aEventID = EVENT_BACKGROUND_COLOR then begin
+    pbBackground.Color := TDrawingCommandData.ExtractColor( aEventData );
     pb.Repaint;
   end;
 end;

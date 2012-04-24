@@ -25,7 +25,6 @@ inherited fmMain: TfmMain
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitHeight = 395
     object pbBackground: TPaintBox
       Left = 0
       Top = 448
@@ -43,7 +42,6 @@ inherited fmMain: TfmMain
       Style = [cbStandardColors]
       TabOrder = 0
       OnChange = ColorBox1Change
-      ExplicitTop = 112
     end
   end
 end

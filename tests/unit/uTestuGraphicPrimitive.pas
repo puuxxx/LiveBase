@@ -34,6 +34,8 @@ type
     procedure TestPoints;
     procedure TestFirstPoint;
     procedure TestSecondPoint;
+    procedure TestBackground;
+    procedure TestName;
   end;
 
   TestTBackground = class(TTestCase)
@@ -99,6 +101,12 @@ begin
 
 end;
 
+procedure TestTGraphicPrimitive.TestName;
+begin
+  FGraphicPrimitive.Name := 'aaa';
+  Check( FGraphicPrimitive.Name = 'aaa' );
+end;
+
 procedure TestTGraphicPrimitive.TestParent;
 var
   PrimP, PrimC  : TGraphicPrimitive;
@@ -148,6 +156,11 @@ begin
   FGraphicPrimitive.SecondPoint := TPoint.Create( 13, 14 );
   Check( FGraphicPrimitive.SecondPoint.X = 13 );
   Check( FGraphicPrimitive.SecondPoint.Y = 14 );
+end;
+
+procedure TestTGraphicPrimitive.TestBackground;
+begin
+  FGraphicPrimitive.BackgroundColor := clBlue;
 end;
 
 procedure TestTGraphicPrimitive.TestDelChild;

@@ -3,7 +3,7 @@ program AutoBase;
 uses
   Windows,
   Vcl.Forms,
-  uRootForm in 'uRootForm.pas' {fmRoot} ,
+  uRootForm in 'uRootForm.pas' {fmRoot},
   uEventModel in 'uEventModel.pas',
   uBase in 'uBase.pas',
   uExceptions in 'uExceptions.pas',
@@ -13,16 +13,17 @@ uses
   uGenericCommands in 'Commands\uGenericCommands.pas',
   uEnvironment in 'uEnvironment.pas',
   uStrings in 'uStrings.pas',
-  ufmBase in 'Forms\ufmBase.pas' {fmBase} ,
-  ufmMain in 'Forms\ufmMain.pas' {fmMain} ,
+  ufmBase in 'Forms\ufmBase.pas' {fmBase},
+  ufmMain in 'Forms\ufmMain.pas' {fmMain},
   uBaseEquipment in 'Equipment\uBaseEquipment.pas',
   uGraphicPrimitive in 'DrawingArea\uGraphicPrimitive.pas',
   uDrawingPage in 'DrawingArea\uDrawingPage.pas',
   uDrawingTypes in 'DrawingArea\uDrawingTypes.pas',
   uDrawingSupport in 'DrawingArea\uDrawingSupport.pas',
   uDrawingCommand in 'DrawingArea\uDrawingCommand.pas',
-  uCommandData in 'DrawingArea\uCommandData.pas',
-  uDrawingEvent in 'DrawingArea\uDrawingEvent.pas';
+  uDrawingEvent in 'DrawingArea\uDrawingEvent.pas',
+  uLines in '..\lib\VarArrays\uLines.pas',
+  uVarArrays in '..\lib\VarArrays\uVarArrays.pas';
 
 {$R *.res}
 

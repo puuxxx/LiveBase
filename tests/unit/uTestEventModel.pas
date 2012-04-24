@@ -26,7 +26,7 @@ type
   TTestSubscriber = class ( TBaseSubscriber )
   public
     Val : integer;
-    procedure ProcessEvent( const aEventID : TEventID; const aEventData : TEventData ); override;
+    procedure ProcessEvent( const aEventID : TEventID; const aEventData : Variant ); override;
   end;
 
 
@@ -34,23 +34,21 @@ procedure TTestObjectName.TestCommon;
 var
   EventModel : TEventModel;
   Subscriber : TTestSubscriber;
-  EventData : TEventData;
+  EventData : Variant;
 begin
   Subscriber := TTestSubscriber.Create;
 
   Subscriber.Val := VAL_FAIL;
 
-  EventData := TEventData.Create;
-  EventDataID := EventData.IDAsStr;
-
+  EventData := 111;
   EventModel := TEventModel.Create;
   try
     EventModel.RegisterSubscriber( EVENT_ID, Subscriber );
     EventModel.Event( EVENT_ID, EventData );
     CheckEquals( Subscriber.Val, VAL_OK, 'Check Event' );
-    CheckEquals( EventData.IDAsStr, EventDataID, 'Check Event Data' );
-
     EventModel.UnRegister( EVENT_ID, Subscriber );
+
+
     Subscriber.Val := VAL_FAIL;
     EventModel.Event( EVENT_ID, EventData );
     CheckNotEquals( Subscriber.Val, VAL_OK, 'Check Event Unregister');
@@ -73,12 +71,9 @@ end;
 { TTestSubscriber }
 
 procedure TTestSubscriber.ProcessEvent(const aEventID: TEventID;
-  const aEventData: TEventData );
+  const aEventData: Variant );
 begin
   Val := VAL_OK;
-  if aEventData is TBaseObject then begin
-    EventDataID := TBaseObject( aEventData ).IDAsStr;
-  end;
 end;
 
 initialization

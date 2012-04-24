@@ -27,6 +27,7 @@ type
   published
     procedure TestNewSize;
     procedure TestGetBitmap;
+    procedure TestBackgroundPrimitive;
   end;
 
 implementation
@@ -51,6 +52,11 @@ begin
 
   FDrawingPage.NewSize(  H, L );
   FDrawingPage.NewSize(  L, H );
+end;
+
+procedure TestTDrawingPage.TestBackgroundPrimitive;
+begin
+  Check( FDrawingPage.BackgroundPrimitive <> nil );
 end;
 
 procedure TestTDrawingPage.TestGetBitmap;

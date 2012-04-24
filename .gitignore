@@ -7,9 +7,7 @@ sources/AutoBase.identcache
 tests/unit/AutoBaseTests.dproj
 tests/unit/AutoBaseTests.dproj.local
 tests/unit/AutoBaseTests.identcache
-
 tests/bin/*
-
 sources/Profiling/*
 sources/Profiling
 sources/AutoBase_project.tvsconfig

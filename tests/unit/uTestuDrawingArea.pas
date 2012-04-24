@@ -62,6 +62,8 @@ begin
     FDrawingArea.AreaBitmap;
   end;
 
+  FDrawingArea.BackgroundColor := clBlue;
+
 end;
 
 initialization

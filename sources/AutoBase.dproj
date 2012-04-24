@@ -125,8 +125,9 @@
 			<DCCReference Include="DrawingArea\uDrawingTypes.pas"/>
 			<DCCReference Include="DrawingArea\uDrawingSupport.pas"/>
 			<DCCReference Include="DrawingArea\uDrawingCommand.pas"/>
-			<DCCReference Include="DrawingArea\uCommandData.pas"/>
 			<DCCReference Include="DrawingArea\uDrawingEvent.pas"/>
+			<DCCReference Include="..\lib\VarArrays\uLines.pas"/>
+			<DCCReference Include="..\lib\VarArrays\uVarArrays.pas"/>
 			<None Include="Profiling\AQtimeModule1.aqt"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>

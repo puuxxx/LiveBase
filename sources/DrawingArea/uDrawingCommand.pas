@@ -2,7 +2,7 @@ unit uDrawingCommand;
 
 interface
 
-uses uBase, uBaseCommand, uGraphicPrimitive, Graphics, uExceptions;
+uses uBase, uBaseCommand, uGraphicPrimitive, Graphics, uExceptions, Variants;
 
 type
   TDrawingCommandType = (dctBackground);
@@ -10,7 +10,7 @@ type
   TBaseDrawingCommand = class
   public
     procedure Execute(const aPrimitive: TGraphicPrimitive;
-      const aData: array of variant); virtual; abstract;
+      const aData: variant); virtual; abstract;
   end;
 
   TChangeBackgroundColorCommand = class(TBaseDrawingCommand)
@@ -18,12 +18,10 @@ type
     PrimitiveID: TGuid;
     OldBackgroundColor: TColor;
   public
-    procedure Execute(const aPrimitive: TGraphicPrimitive;
-      const aData: array of variant); override;
+    procedure Execute(const aPrimitive: TGraphicPrimitive; const aData: variant); override;
   end;
 
-function DrawingCommandFactory(const aCommandType: TDrawingCommandType)
-  : TBaseDrawingCommand;
+function DrawingCommandFactory(const aCommandType: TDrawingCommandType) : TBaseDrawingCommand;
 
 implementation
 
@@ -38,15 +36,15 @@ end;
 
 { TChangeBackgroundColorCommand }
 
-procedure TChangeBackgroundColorCommand.Execute(const aPrimitive : TGraphicPrimitive; const aData: array of variant);
+procedure TChangeBackgroundColorCommand.Execute(const aPrimitive : TGraphicPrimitive; const aData: variant);
 begin
-  if length(aData) <> 1 then
-    ContractFailure;
+  if VarIsClear( aData ) then ContractFailure;
+  if aPrimitive = nil then ContractFailure;
 
   PrimitiveID := aPrimitive.ID;
   OldBackgroundColor := aPrimitive.BackgroundColor;
 
-  aPrimitive.BackgroundColor := TColor(aData[0]);
+  aPrimitive.BackgroundColor := TColor( aData );
 end;
 
 end.
