@@ -36,8 +36,8 @@ uses
   uDrawingCommand in '..\..\sources\DrawingArea\uDrawingCommand.pas',
   uTestuDrawingEvent in 'uTestuDrawingEvent.pas',
   uDrawingEvent in '..\..\sources\DrawingArea\uDrawingEvent.pas',
-  uLines in '..\..\lib\VarArrays\uLines.pas',
-  uVarArrays in '..\..\lib\VarArrays\uVarArrays.pas';
+  uLines in '..\..\..\lib\VarArrays\uLines.pas',
+  uVarArrays in '..\..\..\lib\VarArrays\uVarArrays.pas';
 
 {$R *.RES}
 

@@ -22,8 +22,8 @@ uses
   uDrawingSupport in 'DrawingArea\uDrawingSupport.pas',
   uDrawingCommand in 'DrawingArea\uDrawingCommand.pas',
   uDrawingEvent in 'DrawingArea\uDrawingEvent.pas',
-  uLines in '..\lib\VarArrays\uLines.pas',
-  uVarArrays in '..\lib\VarArrays\uVarArrays.pas';
+  uLines in '..\..\lib\VarArrays\uLines.pas',
+  uVarArrays in '..\..\lib\VarArrays\uVarArrays.pas';
 
 {$R *.res}
 

@@ -108,8 +108,8 @@
 			<DCCReference Include="..\..\sources\DrawingArea\uDrawingCommand.pas"/>
 			<DCCReference Include="uTestuDrawingEvent.pas"/>
 			<DCCReference Include="..\..\sources\DrawingArea\uDrawingEvent.pas"/>
-			<DCCReference Include="..\..\lib\VarArrays\uLines.pas"/>
-			<DCCReference Include="..\..\lib\VarArrays\uVarArrays.pas"/>
+			<DCCReference Include="..\..\..\lib\VarArrays\uLines.pas"/>
+			<DCCReference Include="..\..\..\lib\VarArrays\uVarArrays.pas"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>
