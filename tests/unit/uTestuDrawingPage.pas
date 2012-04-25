@@ -28,6 +28,7 @@ type
     procedure TestNewSize;
     procedure TestGetBitmap;
     procedure TestBackgroundPrimitive;
+    procedure TestGetPrimitiveByCoord;
   end;
 
 implementation
@@ -66,6 +67,19 @@ begin
   FDrawingPage.NewSize( 0, 10000 );
   ReturnValue := FDrawingPage.GetBitmap;
   Check( ReturnValue <> nil );
+end;
+
+procedure TestTDrawingPage.TestGetPrimitiveByCoord;
+var
+  i : integer;
+  B : TBitMap;
+begin
+  FDrawingPage.NewSize( 100, 100 );
+  FDrawingPage.GetBitmap;
+
+  for I := 4 to 50 do begin
+    Check( FDrawingPage.BackgroundPrimitive = FDrawingPage.GetPrimitiveByCoord( 10, i ) );
+  end;
 end;
 
 initialization

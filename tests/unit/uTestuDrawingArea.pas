@@ -63,6 +63,7 @@ begin
   end;
 
   FDrawingArea.BackgroundColor := clBlue;
+  FDrawingArea.OnMouseMove( 10, 10 );
 
 end;
 

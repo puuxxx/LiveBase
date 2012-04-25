@@ -256,9 +256,15 @@ end;
 { TBackground }
 
 procedure TBackground.Draw(const aGraphics: IGPGraphics);
+var
+  DBox : TDrawingBox;
 begin
-  with GetDrawingBox do SolidBrush.Color := GPColor( BackgroundColor );
-  aGraphics.FillRectangle( GetDrawingBox.SolidBrush, 0, 0, FirstPoint.X, FirstPoint.Y );
+  DBox := GetDrawingBox;
+  DBox.SolidBrush.Color := GPColor( DBox.BackgroundColor );
+  aGraphics.FillRectangle( DBox.SolidBrush, 0, 0, FirstPoint.X, FirstPoint.Y );
 end;
+
+initialization
+  GlobalIndexColor := 1;
 
 end.

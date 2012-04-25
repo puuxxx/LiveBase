@@ -47,7 +47,7 @@ interface
     end;
 
 
-    function GPColor( const aColor : TColor ) : TGPColor; inline;
+    function GPColor( const aColor : TColor ) : TGPColor;
 
 implementation
 

@@ -12,6 +12,7 @@ interface
       FEventModel : TEventModel;
       FPage : TDrawingPage;
       FCommands : TObjectList<TBaseDrawingCommand>;
+      FLightedPrimitive : TGraphicPrimitive;   // примитив под курсором
 
       procedure ExecuteCommand( const aCommandType : TDrawingCommandType;
         aPrimitive : TGraphicPrimitive; const aValue : variant );
@@ -24,6 +25,7 @@ interface
       destructor Destroy; override;
 
       procedure OnNewSize( const aWidth, aHeight : integer );
+      procedure OnMouseMove( const aX, aY : integer );
 
       property BackgroundColor : TColor read GetBackgroundColor write SetBackgroundColor;
       property AreaBitmap : TBitmap read GetBitmap;
@@ -42,6 +44,7 @@ begin
   FEventModel := aEventModel;
   FPage := TDrawingPage.Create;
   FCommands := TObjectList<TBaseDrawingCommand>.Create;
+  FLightedPrimitive := FPage.BackgroundPrimitive;
 end;
 
 destructor TDrawingArea.Destroy;
@@ -73,6 +76,11 @@ end;
 function TDrawingArea.GetBitmap: TBitmap;
 begin
   Result := FPage.GetBitmap;
+end;
+
+procedure TDrawingArea.OnMouseMove(const aX, aY: integer);
+begin
+  FLightedPrimitive := FPage.GetPrimitiveByCoord( aX, aY );
 end;
 
 procedure TDrawingArea.OnNewSize(const aWidth, aHeight: integer);
