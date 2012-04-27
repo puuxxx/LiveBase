@@ -26,8 +26,8 @@ type
 
     function GetBitmap: TBitMap;
     function GetPrimitiveByCoord( const aX, aY : integer ) : TGraphicPrimitive;
-
-    property BackgroundPrimitive: TBackground read FRoot;
+    function GetPrimitiveByID( const aID : string ) : TGraphicPrimitive;
+    property RootPrimitive: TBackground read FRoot;
   end;
 
 implementation
@@ -104,6 +104,32 @@ begin
   Result := GetPrimitiveByIndexColor( FFakeBitMap.Canvas.Pixels[ aX, aY ] );
 
   if Result = nil then ContractFailure;
+end;
+
+function TDrawingPage.GetPrimitiveByID(const aID: string): TGraphicPrimitive;
+
+  function FindPrimitive ( const aParent : TGraphicPrimitive; const aID : string ) : TGraphicPrimitive;
+  var
+    i : integer;
+    Child : TGraphicPrimitive;
+  begin
+    Result := nil;
+    for I := 0 to aParent.ChildCount-1 do begin
+      Child := aParent.Child[i];
+      if SameStr( Child.IDAsStr, aID ) then begin
+        Result := Child;
+        exit;
+      end;
+
+      if Child.ChildCount > 0 then begin
+        Result := FindPrimitive( Child, aID );
+      end;
+    end;
+  end;
+
+begin
+  if SameStr( FRoot.IDAsStr, aID ) then Result := FRoot
+                                   else Result := FindPrimitive( FRoot, aID );
 end;
 
 function TDrawingPage.GetPrimitiveByIndexColor(

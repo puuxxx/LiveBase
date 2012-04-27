@@ -12,7 +12,7 @@ unit uTestuDrawingArea;
 interface
 
 uses
-  TestFramework, uDrawingArea, uBase, SysUtils, uEventModel, Graphics;
+  TestFramework, uDrawingArea, uBase, SysUtils, uEventModel, Graphics, uGraphicPrimitive;
 
 type
   // Test methods for class TDrawingArea
@@ -26,6 +26,7 @@ type
     procedure TearDown; override;
 
     procedure TestOne;
+    procedure TestFindPrimitive;
   end;
 
 implementation
@@ -40,6 +41,11 @@ begin
   FDrawingArea.Free;
   FDrawingArea := nil;
   FreeAndNil( FEventModel );
+end;
+
+procedure TestTDrawingArea.TestFindPrimitive;
+begin
+//
 end;
 
 procedure TestTDrawingArea.TestOne;

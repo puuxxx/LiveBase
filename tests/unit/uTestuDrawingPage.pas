@@ -24,14 +24,27 @@ type
   public
     procedure SetUp; override;
     procedure TearDown; override;
+  private
+    procedure CreateManyPrimitives( var aLastPrim : TGraphicPrimitive );
   published
     procedure TestNewSize;
     procedure TestGetBitmap;
     procedure TestBackgroundPrimitive;
     procedure TestGetPrimitiveByCoord;
+    procedure TestGetPrimitiveByID;
   end;
 
 implementation
+
+procedure TestTDrawingPage.CreateManyPrimitives(
+  var aLastPrim: TGraphicPrimitive);
+var
+  i : integer;
+begin
+  for I := 0 to 100 do begin
+    aLastPrim := TGraphicPrimitive.Create( FDrawingPage.RootPrimitive );
+  end;
+end;
 
 procedure TestTDrawingPage.SetUp;
 begin
@@ -57,7 +70,7 @@ end;
 
 procedure TestTDrawingPage.TestBackgroundPrimitive;
 begin
-  Check( FDrawingPage.BackgroundPrimitive <> nil );
+  Check( FDrawingPage.RootPrimitive <> nil );
 end;
 
 procedure TestTDrawingPage.TestGetBitmap;
@@ -72,14 +85,31 @@ end;
 procedure TestTDrawingPage.TestGetPrimitiveByCoord;
 var
   i : integer;
-  B : TBitMap;
 begin
   FDrawingPage.NewSize( 100, 100 );
   FDrawingPage.GetBitmap;
 
   for I := 4 to 50 do begin
-    Check( FDrawingPage.BackgroundPrimitive = FDrawingPage.GetPrimitiveByCoord( 10, i ) );
+    Check( FDrawingPage.RootPrimitive = FDrawingPage.GetPrimitiveByCoord( 10, i ) );
   end;
+end;
+
+procedure TestTDrawingPage.TestGetPrimitiveByID;
+var
+  Prim, LastPrim : TGraphicPrimitive;
+  id : string;
+begin
+  LastPrim := nil;
+  CreateManyPrimitives( LastPrim );
+  Prim := TGraphicPrimitive.Create( LastPrim );
+  CreateManyPrimitives( LastPrim );
+  id := Prim.IDAsStr;
+  Check( Prim = FDrawingPage.GetPrimitiveByID( id ) );
+
+  Prim := TGraphicPrimitive.Create( FDrawingPage.RootPrimitive );
+  id := Prim.IDAsStr;
+  Check( Prim = FDrawingPage.GetPrimitiveByID( id ) );
+
 end;
 
 initialization

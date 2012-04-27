@@ -27,6 +27,9 @@ interface
       procedure OnNewSize( const aWidth, aHeight : integer );
       procedure OnMouseMove( const aX, aY : integer );
 
+
+      function FindPrimitive( const aID : string ) : TGraphicPrimitive;
+
       property BackgroundColor : TColor read GetBackgroundColor write SetBackgroundColor;
       property AreaBitmap : TBitmap read GetBitmap;
     end;
@@ -44,7 +47,7 @@ begin
   FEventModel := aEventModel;
   FPage := TDrawingPage.Create;
   FCommands := TObjectList<TBaseDrawingCommand>.Create;
-  FLightedPrimitive := FPage.BackgroundPrimitive;
+  FLightedPrimitive := FPage.RootPrimitive;
 end;
 
 destructor TDrawingArea.Destroy;
@@ -68,9 +71,14 @@ begin
   end;
 end;
 
+function TDrawingArea.FindPrimitive(const aID: string): TGraphicPrimitive;
+begin
+  Result := FPage.GetPrimitiveByID( aID );
+end;
+
 function TDrawingArea.GetBackgroundColor: TColor;
 begin
-  Result := FPage.BackgroundPrimitive.BackgroundColor;
+  Result := FPage.RootPrimitive.BackgroundColor;
 end;
 
 function TDrawingArea.GetBitmap: TBitmap;
@@ -90,11 +98,11 @@ end;
 
 procedure TDrawingArea.SetBackgroundColor(const Value: TColor);
 begin
-  ExecuteCommand( dctBackground, FPage.BackgroundPrimitive, Value );
+  ExecuteCommand( dctBackground, FPage.RootPrimitive, Value );
 
   // информируем о изменении цвета фона
   FEventModel.Event( EVENT_BACKGROUND_COLOR,
-    TDrawingCommandData.CreateData( FPage.BackgroundPrimitive, Value ) );
+    TDrawingCommandData.CreateData( FPage.RootPrimitive.IDAsStr, Value ) );
 end;
 
 
