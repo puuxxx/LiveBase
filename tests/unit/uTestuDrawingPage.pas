@@ -33,6 +33,7 @@ type
     procedure TestGetPrimitiveByCoord;
     procedure TestGetPrimitiveByID;
     procedure TestSelect;
+    procedure TestAddPrimitive;
   end;
 
 implementation
@@ -73,6 +74,25 @@ procedure TestTDrawingPage.TestSelect;
 begin
   Check( FDrawingPage.SelectPrimitive <> nil );
   Check( FDrawingPage.SelectPrimitive is TSelect );
+end;
+
+procedure TestTDrawingPage.TestAddPrimitive;
+var
+  pt : TPrimitiveType;
+  ok : boolean;
+begin
+  for pt := TPrimitiveType.ptBox to High( TPrimitiveType ) do begin
+    FDrawingPage.AddPrimitive( 10, 10, pt );
+  end;
+
+  ok := false;
+  try
+    FDrawingPage.AddPrimitive( 10, 10, ptNone );
+  except
+    ok := true;
+  end;
+
+  Check( ok );
 end;
 
 procedure TestTDrawingPage.TestBackgroundPrimitive;

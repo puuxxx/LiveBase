@@ -32,15 +32,35 @@ type
     function GetPrimitiveByCoord( const aX, aY : integer ) : TGraphicPrimitive;
     function GetPrimitiveByID( const aID : string ) : TGraphicPrimitive;
     function IsRootPrimitiveCord( const aX, aY : integer ) : boolean;
-
+    function AddPrimitive( const aX, aY : integer; const aType : TPrimitiveType ) : TGraphicPrimitive;
     property RootPrimitive: TBackground read FRoot;
     property SelectPrimitive : TSelect read FSelect;
     property NeedToDrawSelect : boolean read FNeedToDrawSelect write FNeedToDrawSelect;
   end;
 
+  function PrimitiveFactory( const aPage : TDrawingPage; const aType : TPrimitiveType ) : TGraphicPrimitive;
+
 implementation
 
+const
+  PrimitivesClasses : array [ TPrimitiveType ] of TGraphicPrimitiveClass = (
+    nil, TBox
+  );
+
+function PrimitiveFactory( const aPage : TDrawingPage; const aType : TPrimitiveType ) : TGraphicPrimitive;
+begin
+  if not Assigned( PrimitivesClasses[ aType ] ) then ContractFailure;
+
+  Result := PrimitivesClasses[ aType ].Create( aPage.RootPrimitive );
+end;
+
+
 { TDrawingPage }
+
+function TDrawingPage.AddPrimitive( const aX, aY : integer; const aType : TPrimitiveType ): TGraphicPrimitive;
+begin
+  Result := PrimitiveFactory( Self, aType );
+end;
 
 constructor TDrawingPage.Create;
 begin
@@ -61,6 +81,7 @@ begin
   FSelect := TSelect.Create(nil);
   FNeedToDrawSelect := false;
   FSelect.FirstPoint := TPoint.Create( 0, 0 );
+
 end;
 
 destructor TDrawingPage.Destroy;
@@ -69,7 +90,7 @@ begin
   FreeAndNil(FBitMap);
   FreeAndNil(FRoot);
   FreeAndNil(FSelect);
-
+  
   inherited;
 end;
 

@@ -9,9 +9,10 @@ interface
   {$M+}
 
   type
-
+    TPrimitiveType = ( ptNone, ptBox ); // примитивы
     TPrimitiveDrawMode = ( pdmNormal, pdmIndex ); // режим рисования примитива
 
+    TGraphicPrimitiveClass = class of TGraphicPrimitive;
     TGraphicPrimitive = class ( TBaseSubscriber )
     strict private
       FParentPrimitive : TGraphicPrimitive;
@@ -34,6 +35,8 @@ interface
       procedure SetBackgroundColor(const Value: TColor);
       function GetBorderColor: TColor;
       procedure SetBorderColor(const Value: TColor);
+      function GetBorderWidth: byte;
+      procedure SetBorderWidth(const Value: byte);
     protected
       procedure AddChild( const aPrimitive : TGraphicPrimitive );
       function GetDrawingBox : TDrawingBox;
@@ -52,6 +55,10 @@ interface
       procedure DelChild( const aIndex : integer ); overload;
       procedure DelChild( const aPrimitive : TGraphicPrimitive ); overload;
 
+      // положение
+      procedure ChangePos( const aNewX, aNewY : integer ); virtual;
+      procedure InitCoord( const aCenterX, aCenterY : integer ); virtual;
+
       property Child[ aIndex : integer ] : TGraphicPrimitive read GetChild;
       property ChildCount : integer read GetChildCount;
 
@@ -66,6 +73,7 @@ interface
       // графические свойства примитива
       property BackgroundColor : TColor read GetbackgroundColor write SetBackgroundColor;
       property BorderColor : TColor read GetBorderColor write SetBorderColor;
+      property BorderWidth : byte read GetBorderWidth write SetBorderWidth;
     published
       property Name : string read FName write FName;
     end;
@@ -87,10 +95,24 @@ interface
       property BorderColor;
     end;
 
+    TBox = class( TGraphicPrimitive )
+    protected
+      procedure Draw( const aGraphics : IGPGraphics ); override;
+    public
+      procedure ChangePos( const aNewX, aNewY : integer ); override;
+      procedure InitCoord( const aCenterX, aCenterY : integer ); override;
+    published
+      property BorderColor;
+      property BackgroundColor;
+      property BorderWidth;
+    end;
+
 implementation
 
 const
   SELECT_DASHES_PATTERN : array [0..1] of single = ( 1, 1 );
+  DEFAULT_WIDTH = 100;
+  DEFAULT_HEIGHT = 100;
 
 var
   GlobalIndexColor : TColor;
@@ -130,6 +152,11 @@ begin
   if aPrimitive = nil then ContractFailure;
 
   FChilds.Add( aPrimitive );
+end;
+
+procedure TGraphicPrimitive.ChangePos(const aNewX, aNewY: integer);
+begin
+//
 end;
 
 constructor TGraphicPrimitive.Create(const aParent: TGraphicPrimitive);
@@ -200,6 +227,11 @@ begin
   Result := NormalDrawingBox.BorderColor
 end;
 
+function TGraphicPrimitive.GetBorderWidth: byte;
+begin
+  Result := NormalDrawingBox.BorderWidth
+end;
+
 function TGraphicPrimitive.GetChild(aIndex: integer): TGraphicPrimitive;
 begin
   if ( aIndex < 0 ) or ( aIndex >= FChilds.Count ) then ContractFailure;
@@ -237,6 +269,11 @@ begin
 
 end;
 
+procedure TGraphicPrimitive.InitCoord(const aCenterX, aCenterY: integer);
+begin
+//
+end;
+
 procedure TGraphicPrimitive.RemoveAllChildren;
 begin
   FChilds.Clear;
@@ -250,6 +287,11 @@ end;
 procedure TGraphicPrimitive.SetBorderColor(const Value: TColor);
 begin
   NormalDrawingBox.BorderColor := Value;
+end;
+
+procedure TGraphicPrimitive.SetBorderWidth(const Value: byte);
+begin
+  NormalDrawingBox.BorderWidth := Value;
 end;
 
 procedure TGraphicPrimitive.SetFirstPoint(const Value: TPoint);
@@ -331,6 +373,57 @@ begin
   if H = 0 then H := 1;
 
   aGraphics.DrawRectangle( DBox.Pen, X, Y, W, H );
+end;
+
+{ TBox }
+
+procedure TBox.ChangePos(const aNewX, aNewY: integer);
+begin
+//
+end;
+
+procedure TBox.Draw( const aGraphics: IGPGraphics );
+var
+  DBox : TDrawingBox;
+  X, Y, H, W : integer;
+begin
+  DBox := GetDrawingBox;
+
+  DBox.Pen.Alignment := PenAlignmentInset;
+  DBox.Pen.Width := DBox.BorderWidth;
+  DBox.Pen.Color := GPColor( DBox.BorderColor );
+  DBox.SolidBrush.Color := GPColor( DBox.BackgroundColor );
+
+  if SecondPoint.X < FirstPoint.X then begin
+    X := SecondPoint.X;
+    W := FirstPoint.X - SecondPoint.X;
+  end else begin
+    X := FirstPoint.X;
+    W := SecondPoint.X - FirstPoint.X;
+  end;
+
+  if SecondPoint.Y < FirstPoint.Y then begin
+    Y := SecondPoint.Y;
+    H := FirstPoint.Y - SecondPoint.Y;
+  end else begin
+    Y := FirstPoint.Y;
+    H := SecondPoint.Y - FirstPoint.Y;
+  end;
+
+  if W = 0 then W := 1;
+  if H = 0 then H := 1;
+
+  aGraphics.FillRectangle( DBox.SolidBrush, X, Y, W, H );
+  aGraphics.DrawRectangle( DBOx.Pen, X, Y, W, H );
+end;
+
+procedure TBox.InitCoord(const aCenterX, aCenterY: integer);
+begin
+  FirstPoint := TPoint.Create(
+    aCenterX - DEFAULT_WIDTH div 2, aCenterY - DEFAULT_HEIGHT div 2 );
+
+  SecondPoint := TPoint.Create(
+    aCenterX + DEFAULT_WIDTH div 2, aCenterY + DEFAULT_HEIGHT div 2 );
 end;
 
 initialization

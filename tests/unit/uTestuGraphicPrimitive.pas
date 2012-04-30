@@ -58,6 +58,19 @@ type
     procedure TestDraw;
   end;
 
+  TestTBox = class(TTestCase)
+  private
+    FBox : TBox;
+  public
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure TestDraw;
+    procedure TestInitCoord;
+  end;
+
+
+
 implementation
 
 procedure TestTGraphicPrimitive.SetUp;
@@ -280,7 +293,7 @@ var
   i, j : integer;
 begin
   G := TGPGraphics.Create( GetDc(0) );
-  FSelect.DrawNormal( G );
+  //FSelect.DrawNormal( G );
 
 
   for I := -10 to 10 do
@@ -292,11 +305,53 @@ begin
 
 end;
 
+{ TestTBox }
+
+procedure TestTBox.SetUp;
+begin
+  inherited;
+  FBox := TBox.Create( nil );
+end;
+
+procedure TestTBox.TearDown;
+begin
+  FreeAndNil( FBox );
+  inherited;
+end;
+
+procedure TestTBox.TestDraw;
+var
+  G : IGPGraphics;
+  i, j : integer;
+begin
+  G := TGPGraphics.Create( GetDc(0) );
+ // FBox.DrawNormal( G );
+
+
+  for I := -10 to 10 do
+    for j := 10 downto -10 do begin
+      FBox.FirstPoint := TPoint.Create( i, j  );
+      FBox.SecondPoint := TPoint.Create( j, i );
+      FBox.DrawNormal( G );
+      FBox.DrawIndex( G );
+    end;
+
+end;
+
+procedure TestTBox.TestInitCoord;
+begin
+  FBox.InitCoord( 10, 10 );
+  FBox.InitCoord( -10, 100 );
+  FBox.InitCoord( 0, 10 );
+  FBox.InitCoord( 10, 0 );
+end;
+
 initialization
   // Register any test cases with the test runner
   RegisterTest(TestTGraphicPrimitive.Suite);
   RegisterTest(TestTBackground.Suite);
   RegisterTest(TestTSelect.Suite);
+  RegisterTest(TestTBox.Suite);
 
 end.
 

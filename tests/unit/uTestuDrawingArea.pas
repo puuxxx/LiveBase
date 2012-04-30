@@ -52,6 +52,7 @@ end;
 procedure TestTDrawingArea.TestOne;
 var
   i : integer;
+  pt : TPrimitiveType;
 begin
 
   // тестируем изменение размера и рисование фона
@@ -75,13 +76,16 @@ begin
 
   // теструем рисование рамки
   FDrawingArea.OnNewSize( 100, 100 );
-  FDrawingArea.OnMouseDown( TMouseButton.mbLeft, [], 10, 10 );
+  FDrawingArea.OnMouseDown( TMouseButton.mbLeft,10, 10 );
   FDrawingArea.OnMouseMove( 20, 20 );
   FDrawingArea.OnMouseMove( 5, 20 );
   FDrawingArea.OnMouseMove( 6, 8 );
   FDrawingArea.OnMouseMove( 20, 200 );
-  FDrawingArea.OnMouseUp( TMouseButton.mbLeft, [], 20, 200 );
+  FDrawingArea.OnMouseUp( TMouseButton.mbLeft, 20, 200 );
 
+  for pt := ptBox to High( TPrimitiveType ) do begin
+    FDrawingArea.CreatePrimitive( 10, 10, pt  );
+  end;
 
 end;
 
