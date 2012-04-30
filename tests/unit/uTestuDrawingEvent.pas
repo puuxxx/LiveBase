@@ -50,7 +50,7 @@ var
 begin
   Ok := false;
   try
-    TDrawingCommandData.CreateData( nil, 123 );
+    TDrawingCommandData.CreateData( '', 123 );
   except
     Ok := true;
   end;
@@ -65,10 +65,10 @@ var
 begin
   aData := 11;
 
-  ReturnValue := TDrawingCommandData.CreateData( FPrimitive, aData );
+  ReturnValue := TDrawingCommandData.CreateData( FPrimitive.IDAsStr, aData );
   Check( VarIsArray( ReturnValue ) );
 
-  ReturnValue := TDrawingCommandData.CreateData( FPrimitive, [ aData ] );
+  ReturnValue := TDrawingCommandData.CreateData( FPrimitive.IDAsStr, [ aData ] );
   Check( VarIsArray( ReturnValue ) );
 end;
 
@@ -76,10 +76,10 @@ procedure TestTDrawingCommandData.TestExtractPrimitive;
 var
   Data: Variant;
 begin
-  Data := TDrawingCommandData.CreateData( FPrimitive, 'xyz' );
+  Data := TDrawingCommandData.CreateData( FPrimitive.IDAsStr, 'xyz' );
   Check( VarIsArray( Data ) );
 
-  Check( FPrimitive = TDrawingCommandData.ExtractPrimitive( Data ) );
+  CheckEqualsString (FPrimitive.IDAsStr, TDrawingCommandData.ExtractPrimitiveID( Data ) );
 end;
 
 procedure TestTDrawingCommandData.TestExtractColor;
@@ -87,7 +87,7 @@ var
   ReturnValue: Variant;
   aData: Variant;
 begin
-  ReturnValue := TDrawingCommandData.CreateData( FPrimitive, clRed );
+  ReturnValue := TDrawingCommandData.CreateData( FPrimitive.IDAsStr, clRed );
   Check( VarIsArray( ReturnValue ) );
 
   Check( TDrawingCommandData.ExtractColor( aData ) = clRed );

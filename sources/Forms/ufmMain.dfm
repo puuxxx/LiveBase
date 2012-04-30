@@ -14,6 +14,9 @@ inherited fmMain: TfmMain
     Width = 664
     Height = 515
     Align = alClient
+    OnMouseDown = pbMouseDown
+    OnMouseMove = pbMouseMove
+    OnMouseUp = pbMouseUp
     OnPaint = pbPaint
     ExplicitLeft = 223
   end
@@ -26,12 +29,20 @@ inherited fmMain: TfmMain
     BevelOuter = bvNone
     TabOrder = 0
     object pbBackground: TPaintBox
-      Left = 0
-      Top = 448
-      Width = 217
+      AlignWithMargins = True
+      Left = 10
+      Top = 438
+      Width = 197
       Height = 67
+      Margins.Left = 10
+      Margins.Top = 10
+      Margins.Right = 10
+      Margins.Bottom = 10
       Align = alBottom
       OnPaint = pbBackgroundPaint
+      ExplicitLeft = 0
+      ExplicitTop = 448
+      ExplicitWidth = 217
     end
     object ColorBox1: TColorBox
       Left = 0

@@ -32,13 +32,15 @@ interface
 
       function GetbackgroundColor: TColor;
       procedure SetBackgroundColor(const Value: TColor);
+      function GetBorderColor: TColor;
+      procedure SetBorderColor(const Value: TColor);
     protected
       procedure AddChild( const aPrimitive : TGraphicPrimitive );
       function GetDrawingBox : TDrawingBox;
       procedure Draw( const aGraphics : IGPGraphics ); virtual;
       property NormalDrawingBox : TDrawingBox read FDrawingBox;
     public
-      constructor Create( const aParent : TGraphicPrimitive );
+      constructor Create( const aParent : TGraphicPrimitive ); virtual;
       destructor Destroy; override;
 
       // рисование
@@ -63,6 +65,7 @@ interface
 
       // графические свойства примитива
       property BackgroundColor : TColor read GetbackgroundColor write SetBackgroundColor;
+      property BorderColor : TColor read GetBorderColor write SetBorderColor;
     published
       property Name : string read FName write FName;
     end;
@@ -75,9 +78,19 @@ interface
       property BackgroundColor;
     end;
 
+    TSelect = class( TGraphicPrimitive )
+    protected
+      procedure Draw( const aGraphics : IGPGraphics ); override;
+    public
+      constructor Create( const aParent : TGraphicPrimitive ); override;
+    published
+      property BorderColor;
+    end;
+
 implementation
 
-{ TGraphicPrimitive }
+const
+  SELECT_DASHES_PATTERN : array [0..1] of single = ( 1, 1 );
 
 var
   GlobalIndexColor : TColor;
@@ -109,6 +122,8 @@ begin
   GlobalIndexColor := RGB( r, g, b );
   Result := GlobalIndexColor;
 end;
+
+{ TGraphicPrimitive }
 
 procedure TGraphicPrimitive.AddChild(const aPrimitive: TGraphicPrimitive);
 begin
@@ -180,6 +195,11 @@ begin
   Result := NormalDrawingBox.BackgroundColor
 end;
 
+function TGraphicPrimitive.GetBorderColor: TColor;
+begin
+  Result := NormalDrawingBox.BorderColor
+end;
+
 function TGraphicPrimitive.GetChild(aIndex: integer): TGraphicPrimitive;
 begin
   if ( aIndex < 0 ) or ( aIndex >= FChilds.Count ) then ContractFailure;
@@ -227,6 +247,11 @@ begin
   NormalDrawingBox.BackgroundColor := Value;
 end;
 
+procedure TGraphicPrimitive.SetBorderColor(const Value: TColor);
+begin
+  NormalDrawingBox.BorderColor := Value;
+end;
+
 procedure TGraphicPrimitive.SetFirstPoint(const Value: TPoint);
 begin
   if FPoints.Count <= 0 then begin
@@ -262,6 +287,50 @@ begin
   DBox := GetDrawingBox;
   DBox.SolidBrush.Color := GPColor( DBox.BackgroundColor );
   aGraphics.FillRectangle( DBox.SolidBrush, 0, 0, FirstPoint.X, FirstPoint.Y );
+end;
+
+{ TSelect }
+
+constructor TSelect.Create(const aParent: TGraphicPrimitive);
+begin
+  inherited;
+  NormalDrawingBox.Pen.SetDashPattern( SELECT_DASHES_PATTERN );
+  FirstPoint := TPoint.Create( 0, 0 );
+  SecondPoint := FirstPoint;
+end;
+
+procedure TSelect.Draw(const aGraphics: IGPGraphics);
+var
+  DBox : TDrawingBox;
+
+  X, Y, W, H : integer;
+begin
+  if Points.Count < 2 then ContractFailure;
+
+  DBox := GetDrawingBox;
+  DBox.Pen.Color := GPColor( DBox.BorderColor );
+  DBox.Pen.Width := 1;
+
+  if SecondPoint.X < FirstPoint.X then begin
+    X := SecondPoint.X;
+    W := FirstPoint.X - SecondPoint.X;
+  end else begin
+    X := FirstPoint.X;
+    W := SecondPoint.X - FirstPoint.X;
+  end;
+
+  if SecondPoint.Y < FirstPoint.Y then begin
+    Y := SecondPoint.Y;
+    H := FirstPoint.Y - SecondPoint.Y;
+  end else begin
+    Y := FirstPoint.Y;
+    H := SecondPoint.Y - FirstPoint.Y;
+  end;
+
+  if W = 0 then W := 1;
+  if H = 0 then H := 1;
+
+  aGraphics.DrawRectangle( DBox.Pen, X, Y, W, H );
 end;
 
 initialization

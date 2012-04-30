@@ -12,7 +12,8 @@ unit uTestuDrawingArea;
 interface
 
 uses
-  TestFramework, uDrawingArea, uBase, SysUtils, uEventModel, Graphics, uGraphicPrimitive;
+  TestFramework, uDrawingArea, uBase, SysUtils, uEventModel, Graphics, uGraphicPrimitive,
+  Classes, System.UITypes;
 
 type
   // Test methods for class TDrawingArea
@@ -53,6 +54,7 @@ var
   i : integer;
 begin
 
+  // тестируем изменение размера и рисование фона
   FDrawingArea.OnNewSize( Low(Integer), 1 );
   FDrawingArea.AreaBitmap;
   FDrawingArea.OnNewSize( 1, Low(Integer) );
@@ -70,6 +72,16 @@ begin
 
   FDrawingArea.BackgroundColor := clBlue;
   FDrawingArea.OnMouseMove( 10, 10 );
+
+  // теструем рисование рамки
+  FDrawingArea.OnNewSize( 100, 100 );
+  FDrawingArea.OnMouseDown( TMouseButton.mbLeft, [], 10, 10 );
+  FDrawingArea.OnMouseMove( 20, 20 );
+  FDrawingArea.OnMouseMove( 5, 20 );
+  FDrawingArea.OnMouseMove( 6, 8 );
+  FDrawingArea.OnMouseMove( 20, 200 );
+  FDrawingArea.OnMouseUp( TMouseButton.mbLeft, [], 20, 200 );
+
 
 end;
 

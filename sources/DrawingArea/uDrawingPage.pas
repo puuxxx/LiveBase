@@ -9,6 +9,10 @@ type
   private
     FRoot: TBackground;
 
+    // рамка выделения
+    FSelect : TSelect;
+    FNeedToDrawSelect : boolean;
+
     // нормальная битмапка
     FBitMap: TBitMap;
     FGraphics: IGPGraphics;
@@ -27,7 +31,11 @@ type
     function GetBitmap: TBitMap;
     function GetPrimitiveByCoord( const aX, aY : integer ) : TGraphicPrimitive;
     function GetPrimitiveByID( const aID : string ) : TGraphicPrimitive;
+    function IsRootPrimitiveCord( const aX, aY : integer ) : boolean;
+
     property RootPrimitive: TBackground read FRoot;
+    property SelectPrimitive : TSelect read FSelect;
+    property NeedToDrawSelect : boolean read FNeedToDrawSelect write FNeedToDrawSelect;
   end;
 
 implementation
@@ -50,6 +58,9 @@ begin
   NewSize(0, 0); // создадим Graphics
 
   FRoot := TBackground.Create(nil);
+  FSelect := TSelect.Create(nil);
+  FNeedToDrawSelect := false;
+  FSelect.FirstPoint := TPoint.Create( 0, 0 );
 end;
 
 destructor TDrawingPage.Destroy;
@@ -57,6 +68,7 @@ begin
   FGraphics := nil;
   FreeAndNil(FBitMap);
   FreeAndNil(FRoot);
+  FreeAndNil(FSelect);
 
   inherited;
 end;
@@ -93,17 +105,22 @@ begin
   FRoot.DrawIndex( FFakeGraphics );
   DrawPrimitive( FFakeGraphics, FRoot, true );
 
+  if FNeedToDrawSelect then FSelect.DrawNormal( FGraphics );
+
   Result := FBitMap;
 end;
 
 function TDrawingPage.GetPrimitiveByCoord(const aX,
   aY: integer): TGraphicPrimitive;
 begin
-  if ( aX > FFakeBitMap.Width ) or ( aY > FFakeBitMap.Height ) then ContractFailure;
+  if ( aX > FFakeBitMap.Width ) or ( aY > FFakeBitMap.Height ) then begin
+    Result := FRoot;
+    exit;
+  end;
 
   Result := GetPrimitiveByIndexColor( FFakeBitMap.Canvas.Pixels[ aX, aY ] );
 
-  if Result = nil then ContractFailure;
+  if Result = nil then Result := FRoot;
 end;
 
 function TDrawingPage.GetPrimitiveByID(const aID: string): TGraphicPrimitive;
@@ -157,6 +174,11 @@ begin
   end else begin
     Result := FindByColor( FRoot, aIndexColor );
   end;
+end;
+
+function TDrawingPage.IsRootPrimitiveCord(const aX, aY: integer): boolean;
+begin
+  Result := GetPrimitiveByCoord( aX, aY ) = FRoot;
 end;
 
 procedure TDrawingPage.NewSize(const aWidth, aHeight: integer);

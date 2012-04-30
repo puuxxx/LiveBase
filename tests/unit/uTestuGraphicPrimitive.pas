@@ -48,6 +48,16 @@ type
     procedure TestDraw;
   end;
 
+  TestTSelect = class(TTestCase)
+  private
+    FSelect : TSelect;
+  public
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure TestDraw;
+  end;
+
 implementation
 
 procedure TestTGraphicPrimitive.SetUp;
@@ -247,9 +257,46 @@ begin
 
 end;
 
+{ TestTSelect }
+
+procedure TestTSelect.SetUp;
+begin
+  inherited;
+
+  FSelect := TSelect.Create(nil);
+  FSelect.BorderColor := clGreen;
+end;
+
+procedure TestTSelect.TearDown;
+begin
+  FSelect.Free;
+  FSelect := nil;
+  inherited;
+end;
+
+procedure TestTSelect.TestDraw;
+var
+  G : IGPGraphics;
+  i, j : integer;
+begin
+  G := TGPGraphics.Create( GetDc(0) );
+  FSelect.DrawNormal( G );
+
+
+  for I := -10 to 10 do
+    for j := 10 downto -10 do begin
+      FSelect.FirstPoint := TPoint.Create( i, j  );
+      FSelect.SecondPoint := TPoint.Create( j, i );
+      FSelect.DrawNormal( G );
+    end;
+
+end;
+
 initialization
   // Register any test cases with the test runner
   RegisterTest(TestTGraphicPrimitive.Suite);
   RegisterTest(TestTBackground.Suite);
+  RegisterTest(TestTSelect.Suite);
+
 end.
 

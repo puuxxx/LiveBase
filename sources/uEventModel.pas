@@ -2,7 +2,8 @@ unit uEventModel;
 
 interface
 
-  uses uBase, Classes, SysUtils, Generics.Collections, uExceptions, uExceptionCodes;
+  uses uBase, Classes, SysUtils, Generics.Collections, uExceptions, uExceptionCodes,
+    Variants;
 
   type
     TEventID = string;
@@ -31,7 +32,8 @@ interface
       procedure RegisterSubscriber( const aEventID : TEventID; const aSubscriber : ISubscriber );
       procedure UnRegister( const aEventID : TEventID; const aSubscriber : ISubscriber ); overload;
       procedure UnRegister( const aSubscriber : ISubscriber ); overload;
-      procedure Event( const aEventID : TEventID; const aEventData : variant );
+      procedure Event( const aEventID : TEventID; const aEventData : variant ); overload;
+      procedure Event( const aEventID : TEventID ); overload;
     end;
 
 
@@ -56,6 +58,11 @@ destructor TEventModel.Destroy;
 begin
   FList.Clear;
   inherited;
+end;
+
+procedure TEventModel.Event(const aEventID: TEventID);
+begin
+  Event( aEventID, unassigned );
 end;
 
 procedure TEventModel.Event(const aEventID: TEventID; const aEventData: variant );

@@ -11,3 +11,4 @@ tests/bin/*
 sources/Profiling/*
 sources/Profiling
 sources/AutoBase_project.tvsconfig
+sources/options.optset

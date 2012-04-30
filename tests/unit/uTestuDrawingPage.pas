@@ -32,6 +32,7 @@ type
     procedure TestBackgroundPrimitive;
     procedure TestGetPrimitiveByCoord;
     procedure TestGetPrimitiveByID;
+    procedure TestSelect;
   end;
 
 implementation
@@ -66,6 +67,12 @@ begin
 
   FDrawingPage.NewSize(  H, L );
   FDrawingPage.NewSize(  L, H );
+end;
+
+procedure TestTDrawingPage.TestSelect;
+begin
+  Check( FDrawingPage.SelectPrimitive <> nil );
+  Check( FDrawingPage.SelectPrimitive is TSelect );
 end;
 
 procedure TestTDrawingPage.TestBackgroundPrimitive;

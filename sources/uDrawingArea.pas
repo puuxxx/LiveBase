@@ -1,18 +1,22 @@
-unit uDrawingArea;
+п»їunit uDrawingArea;
 
 interface
   uses SysUtils, uBase, uEventModel, Graphics, System.UITypes, uDrawingPage,
     uDrawingCommand, uGraphicPrimitive, System.Generics.Collections,
-    uDrawingEvent;
+    uDrawingEvent, Classes, System.Types;
 
 
   type
+    TAreaState = ( asDrawSelect );
+    TAreaStates = set of TAreaState;
+
     TDrawingArea = class ( TBaseSubscriber )
     strict private
       FEventModel : TEventModel;
       FPage : TDrawingPage;
       FCommands : TObjectList<TBaseDrawingCommand>;
-      FLightedPrimitive : TGraphicPrimitive;   // примитив под курсором
+      FLightedPrimitive : TGraphicPrimitive;   // РїСЂРёРјРёС‚РёРІ РїРѕРґ РєСѓСЂСЃРѕСЂРѕРј
+      FStates : TAreaStates;
 
       procedure ExecuteCommand( const aCommandType : TDrawingCommandType;
         aPrimitive : TGraphicPrimitive; const aValue : variant );
@@ -20,13 +24,18 @@ interface
       function GetBitmap: TBitmap;
       function GetBackgroundColor: TColor;
       procedure SetBackgroundColor(const Value: TColor);
+
+      procedure AddState ( const aState : TAreaState );
+      procedure DelState ( const aState : TAreaState );
+      function HasState ( const aState : TAreaState ) : boolean;
     public
       constructor Create( const aEventModel : TEventModel );
       destructor Destroy; override;
 
       procedure OnNewSize( const aWidth, aHeight : integer );
       procedure OnMouseMove( const aX, aY : integer );
-
+      procedure OnMouseDown( Button: TMouseButton; X, Y: Integer );
+      procedure OnMouseUp( Button: TMouseButton; Shift: TShiftState; X, Y: Integer );
 
       function FindPrimitive( const aID : string ) : TGraphicPrimitive;
 
@@ -38,8 +47,14 @@ implementation
 
 const
   COMMANDS_LIST_MAX_SIZE = 10;
+  CONTROL_MOUSE_BUTTON : TMouseButton = TMouseButton.mbLeft;
 
 { TDrawingArea }
+
+procedure TDrawingArea.AddState(const aState: TAreaState);
+begin
+  FStates := FStates + [ aState ];
+end;
 
 constructor TDrawingArea.Create( const aEventModel : TEventModel );
 begin
@@ -48,6 +63,12 @@ begin
   FPage := TDrawingPage.Create;
   FCommands := TObjectList<TBaseDrawingCommand>.Create;
   FLightedPrimitive := FPage.RootPrimitive;
+  FStates := [];
+end;
+
+procedure TDrawingArea.DelState(const aState: TAreaState);
+begin
+  FStates := FStates - [ aState ];
 end;
 
 destructor TDrawingArea.Destroy;
@@ -86,9 +107,40 @@ begin
   Result := FPage.GetBitmap;
 end;
 
+function TDrawingArea.HasState(const aState: TAreaState): boolean;
+begin
+  Result := aState in FStates;
+end;
+
+procedure TDrawingArea.OnMouseDown(Button: TMouseButton; X, Y: Integer);
+begin
+  if Button = CONTROL_MOUSE_BUTTON then begin
+    if FPage.IsRootPrimitiveCord( X, Y ) then begin
+      AddState( asDrawSelect );
+      FPage.NeedToDrawSelect := true;
+      FPage.SelectPrimitive.FirstPoint := TPoint.Create( X, Y );
+      FPage.SelectPrimitive.SecondPoint := FPage.SelectPrimitive.FirstPoint;
+    end;
+  end;
+end;
+
 procedure TDrawingArea.OnMouseMove(const aX, aY: integer);
 begin
   FLightedPrimitive := FPage.GetPrimitiveByCoord( aX, aY );
+  if HasState( asDrawSelect ) then begin
+    FPage.SelectPrimitive.SecondPoint := TPoint.Create( aX, aY );
+    FEventModel.Event( EVENT_PLEASE_REPAINT );
+  end;
+end;
+
+procedure TDrawingArea.OnMouseUp(Button: TMouseButton; Shift: TShiftState; X,
+  Y: Integer);
+begin
+  if HasState( asDrawSelect ) then begin
+    DelState( asDrawSelect );
+    FPage.NeedToDrawSelect := false;
+    FEventModel.Event( EVENT_PLEASE_REPAINT );
+  end;
 end;
 
 procedure TDrawingArea.OnNewSize(const aWidth, aHeight: integer);
@@ -100,7 +152,7 @@ procedure TDrawingArea.SetBackgroundColor(const Value: TColor);
 begin
   ExecuteCommand( dctBackground, FPage.RootPrimitive, Value );
 
-  // информируем о изменении цвета фона
+  // РёРЅС„РѕСЂРјРёСЂСѓРµРј Рѕ РёР·РјРµРЅРµРЅРёРё С†РІРµС‚Р° С„РѕРЅР°
   FEventModel.Event( EVENT_BACKGROUND_COLOR,
     TDrawingCommandData.CreateData( FPage.RootPrimitive.IDAsStr, Value ) );
 end;

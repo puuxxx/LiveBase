@@ -1,4 +1,4 @@
-unit ufmMain;
+﻿unit ufmMain;
 
 interface
 
@@ -20,6 +20,11 @@ type
     procedure pbPaint(Sender: TObject);
     procedure ColorBox1Change(Sender: TObject);
     procedure pbBackgroundPaint(Sender: TObject);
+    procedure pbMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure pbMouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure pbMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
   private
     FArea: TDrawingArea;
   protected
@@ -53,6 +58,7 @@ procedure TfmMain.FormCreate(Sender: TObject);
 begin
   FArea := TDrawingArea.Create(Env.EventModel);
   Env.EventModel.RegisterSubscriber( EVENT_BACKGROUND_COLOR, Self);
+  Env.EventModel.RegisterSubscriber( EVENT_PLEASE_REPAINT, Self );
   ColorBox1Change(nil);
 end;
 
@@ -67,6 +73,24 @@ begin
   pbBackground.Canvas.FillRect(pbBackground.ClientRect);
 end;
 
+procedure TfmMain.pbMouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  FArea.OnMouseDown( Button, X, Y );
+end;
+
+procedure TfmMain.pbMouseMove(Sender: TObject; Shift: TShiftState; X,
+  Y: Integer);
+begin
+  FArea.OnMouseMove( X, Y );
+end;
+
+procedure TfmMain.pbMouseUp(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  FArea.OnMouseUp( Button, Shift, X, Y );
+end;
+
 procedure TfmMain.pbPaint(Sender: TObject);
 begin
   pb.Canvas.Draw(0, 0, FArea.AreaBitmap);
@@ -76,6 +100,9 @@ procedure TfmMain.ProcessEvent( const aEventID: TEventID; const aEventData: vari
 begin
   if aEventID = EVENT_BACKGROUND_COLOR then begin
     pbBackground.Color := TDrawingCommandData.ExtractColor( aEventData );
+    pb.Repaint;
+  end else
+  if aEventID = EVENT_PLEASE_REPAINT then begin
     pb.Repaint;
   end;
 end;
