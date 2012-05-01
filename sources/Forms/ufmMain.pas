@@ -119,7 +119,10 @@ begin
 end;
 
 procedure TfmMain.pbPaint(Sender: TObject);
+var
+  Bmp : TBitMap;
 begin
+  Bmp := FArea.AreaBitmap;
   pb.Canvas.Draw(0, 0, FArea.AreaBitmap);
 end;
 

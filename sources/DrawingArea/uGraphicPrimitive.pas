@@ -22,14 +22,10 @@ interface
       FDrawMode : TPrimitiveDrawMode;
       FPoints : TPoints;
       FName : string;
+      FSelected : boolean;
 
       function GetChild(aIndex: integer): TGraphicPrimitive;
       function GetChildCount: integer;
-
-      function GetFirstPoint: TPoint;
-      function GetSecondPoint: TPoint;
-      procedure SetFirstPoint(const Value: TPoint);
-      procedure SetSecondPoint(const Value: TPoint);
 
       function GetbackgroundColor: TColor;
       procedure SetBackgroundColor(const Value: TColor);
@@ -41,6 +37,11 @@ interface
       procedure AddChild( const aPrimitive : TGraphicPrimitive );
       function GetDrawingBox : TDrawingBox;
       procedure Draw( const aGraphics : IGPGraphics ); virtual;
+
+      // точки описанного вокруг прямоугольника
+      function GetTopLeftPoint : TPoint; virtual;
+      function GetBottomRightPoint : TPoint; virtual;
+
       property NormalDrawingBox : TDrawingBox read FDrawingBox;
     public
       constructor Create( const aParent : TGraphicPrimitive ); virtual;
@@ -63,12 +64,11 @@ interface
       property ChildCount : integer read GetChildCount;
 
       // точки
-      property FirstPoint : TPoint read GetFirstPoint write SetFirstPoint;
-      property SecondPoint : TPoint read GetSecondPoint write SetSecondPoint;
       property Points : TPoints read FPoints;
 
       property Parent : TGraphicPrimitive read FParentPrimitive;
       property IndexColor : TColor read FIndexColor;
+      property Selected : boolean read FSelected write FSelected;
 
       // графические свойства примитива
       property BackgroundColor : TColor read GetbackgroundColor write SetBackgroundColor;
@@ -78,17 +78,23 @@ interface
       property Name : string read FName write FName;
     end;
 
+    TGraphicPrimitives = array of TGraphicPrimitive;
+
     // фон
     TBackground = class( TGraphicPrimitive )
     protected
       procedure Draw( const aGraphics : IGPGraphics ); override;
+      function GetTopLeftPoint : TPoint; override;
+      function GetBottomRightPoint : TPoint; override;
     published
       property BackgroundColor;
     end;
 
-    TSelect = class( TGraphicPrimitive )
+    TSelectArea = class( TGraphicPrimitive )
     protected
       procedure Draw( const aGraphics : IGPGraphics ); override;
+      function GetTopLeftPoint : TPoint; override;
+      function GetBottomRightPoint : TPoint; override;
     public
       constructor Create( const aParent : TGraphicPrimitive ); override;
     published
@@ -98,6 +104,8 @@ interface
     TBox = class( TGraphicPrimitive )
     protected
       procedure Draw( const aGraphics : IGPGraphics ); override;
+      function GetTopLeftPoint : TPoint; override;
+      function GetBottomRightPoint : TPoint; override;
     public
       procedure ChangePos( const aNewX, aNewY : integer ); override;
       procedure InitCoord( const aCenterX, aCenterY : integer ); override;
@@ -107,43 +115,19 @@ interface
       property BorderWidth;
     end;
 
+    TBorder = class( TGraphicPrimitive )
+    protected
+      procedure Draw( const aGraphics : IGPGraphics ); override;
+      function GetTopLeftPoint : TPoint; override;
+      function GetBottomRightPoint : TPoint; override;
+    end;
+
 implementation
 
 const
   SELECT_DASHES_PATTERN : array [0..1] of single = ( 1, 1 );
   DEFAULT_WIDTH = 100;
   DEFAULT_HEIGHT = 100;
-
-var
-  GlobalIndexColor : TColor;
-
-function GetNextIndexColor : TColor;
-var
-  r, g, b : Byte;
-begin
-  r := GetRValue( GlobalIndexColor );
-  g := GetGValue( GlobalIndexColor );
-  b := GetBValue( GlobalIndexColor );
-
-  if r >= 254 then begin
-    r := 1;
-    if g >= 254 then begin
-      g := 1;
-      if b >= 254 then begin
-        b := 1;
-      end else begin
-        b := b + 1;
-      end;
-    end else begin
-      g := g + 1;
-    end;
-  end else begin
-    r := r + 1;
-  end;
-
-  GlobalIndexColor := RGB( r, g, b );
-  Result := GlobalIndexColor;
-end;
 
 { TGraphicPrimitive }
 
@@ -174,6 +158,7 @@ begin
   FIndexDrawingBox.SetColor( FIndexColor );
 
   FPoints := TPoints.Create;
+  FSelected := false;
 
   FName := '';
 end;
@@ -232,6 +217,11 @@ begin
   Result := NormalDrawingBox.BorderWidth
 end;
 
+function TGraphicPrimitive.GetBottomRightPoint: TPoint;
+begin
+//
+end;
+
 function TGraphicPrimitive.GetChild(aIndex: integer): TGraphicPrimitive;
 begin
   if ( aIndex < 0 ) or ( aIndex >= FChilds.Count ) then ContractFailure;
@@ -250,23 +240,9 @@ begin
                            else Result := FIndexDrawingBox;
 end;
 
-function TGraphicPrimitive.GetFirstPoint: TPoint;
+function TGraphicPrimitive.GetTopLeftPoint: TPoint;
 begin
-  if FPoints.Count <= 0 then begin
-    ContractFailure;
-  end;
-
-  Result := FPoints.Point[0];
-end;
-
-function TGraphicPrimitive.GetSecondPoint: TPoint;
-begin
-  if FPoints.Count <= 1 then begin
-    ContractFailure;
-  end;
-
-  Result := FPoints.Point[1];
-
+//
 end;
 
 procedure TGraphicPrimitive.InitCoord(const aCenterX, aCenterY: integer);
@@ -294,57 +270,44 @@ begin
   NormalDrawingBox.BorderWidth := Value;
 end;
 
-procedure TGraphicPrimitive.SetFirstPoint(const Value: TPoint);
-begin
-  if FPoints.Count <= 0 then begin
-    FPoints.Add( Value );
-  end else begin
-    FPoints.Point[0] := Value;
-  end;
-end;
-
-procedure TGraphicPrimitive.SetSecondPoint(const Value: TPoint);
-var
-  Count : integer;
-begin
-  Count := FPoints.Count;
-
-  if Count <= 0 then begin
-    ContractFailure
-  end;
-
-  if ( Count = 1 ) then begin
-    FPoints.Add( Value );
-  end else begin
-    FPoints.Point[1] := Value;
-  end;
-end;
-
 { TBackground }
 
 procedure TBackground.Draw(const aGraphics: IGPGraphics);
 var
   DBox : TDrawingBox;
+  PTL, PBR : TPoint;
 begin
   DBox := GetDrawingBox;
   DBox.SolidBrush.Color := GPColor( DBox.BackgroundColor );
-  aGraphics.FillRectangle( DBox.SolidBrush, 0, 0, FirstPoint.X, FirstPoint.Y );
+
+  PTL := GetTopLeftPoint;
+  PBR := GetBottomRightPoint;
+  aGraphics.FillRectangle( DBox.SolidBrush, PTL.X , PTL.Y, PBR.X, PBR.Y );
+end;
+
+function TBackground.GetBottomRightPoint: TPoint;
+begin
+  Result := Points.Point[0];
+end;
+
+function TBackground.GetTopLeftPoint: TPoint;
+begin
+  Result := TPoint.Create( 0, 0 );
 end;
 
 { TSelect }
 
-constructor TSelect.Create(const aParent: TGraphicPrimitive);
+constructor TSelectArea.Create(const aParent: TGraphicPrimitive);
 begin
   inherited;
   NormalDrawingBox.Pen.SetDashPattern( SELECT_DASHES_PATTERN );
-  FirstPoint := TPoint.Create( 0, 0 );
-  SecondPoint := FirstPoint;
+  Points.Add( 0, 0 );
+  Points.Add( 0, 0 );
 end;
 
-procedure TSelect.Draw(const aGraphics: IGPGraphics);
+procedure TSelectArea.Draw(const aGraphics: IGPGraphics);
 var
   DBox : TDrawingBox;
-
   X, Y, W, H : integer;
 begin
   if Points.Count < 2 then ContractFailure;
@@ -353,33 +316,37 @@ begin
   DBox.Pen.Color := GPColor( DBox.BorderColor );
   DBox.Pen.Width := 1;
 
-  if SecondPoint.X < FirstPoint.X then begin
-    X := SecondPoint.X;
-    W := FirstPoint.X - SecondPoint.X;
-  end else begin
-    X := FirstPoint.X;
-    W := SecondPoint.X - FirstPoint.X;
-  end;
-
-  if SecondPoint.Y < FirstPoint.Y then begin
-    Y := SecondPoint.Y;
-    H := FirstPoint.Y - SecondPoint.Y;
-  end else begin
-    Y := FirstPoint.Y;
-    H := SecondPoint.Y - FirstPoint.Y;
-  end;
-
-  if W = 0 then W := 1;
-  if H = 0 then H := 1;
+  GetXYHW( GetTopLeftPoint, GetBottomRightPoint, true, X, Y, H, W);
 
   aGraphics.DrawRectangle( DBox.Pen, X, Y, W, H );
+end;
+
+function TSelectArea.GetBottomRightPoint: TPoint;
+begin
+  Result := Points.Point[1];
+end;
+
+function TSelectArea.GetTopLeftPoint: TPoint;
+begin
+  Result := Points.Point[0];
 end;
 
 { TBox }
 
 procedure TBox.ChangePos(const aNewX, aNewY: integer);
+var
+  P : TPoint;
 begin
-//
+  P := Points.Point[0];
+  P.X := P.X + aNewX;
+  P.Y := P.Y + aNewY;
+  Points.Point[0] := P;
+
+  P := Points.Point[1];
+  P.X := P.X + aNewX;
+  P.Y := P.Y + aNewY;
+
+  Points.Point[1] := P;
 end;
 
 procedure TBox.Draw( const aGraphics: IGPGraphics );
@@ -394,39 +361,53 @@ begin
   DBox.Pen.Color := GPColor( DBox.BorderColor );
   DBox.SolidBrush.Color := GPColor( DBox.BackgroundColor );
 
-  if SecondPoint.X < FirstPoint.X then begin
-    X := SecondPoint.X;
-    W := FirstPoint.X - SecondPoint.X;
-  end else begin
-    X := FirstPoint.X;
-    W := SecondPoint.X - FirstPoint.X;
-  end;
-
-  if SecondPoint.Y < FirstPoint.Y then begin
-    Y := SecondPoint.Y;
-    H := FirstPoint.Y - SecondPoint.Y;
-  end else begin
-    Y := FirstPoint.Y;
-    H := SecondPoint.Y - FirstPoint.Y;
-  end;
-
-  if W = 0 then W := 1;
-  if H = 0 then H := 1;
+  GetXYHW( GetTopLeftPoint, GetBottomRightPoint, true, X, Y, H, W );
 
   aGraphics.FillRectangle( DBox.SolidBrush, X, Y, W, H );
   aGraphics.DrawRectangle( DBOx.Pen, X, Y, W, H );
 end;
 
-procedure TBox.InitCoord(const aCenterX, aCenterY: integer);
+function TBox.GetBottomRightPoint: TPoint;
 begin
-  FirstPoint := TPoint.Create(
-    aCenterX - DEFAULT_WIDTH div 2, aCenterY - DEFAULT_HEIGHT div 2 );
-
-  SecondPoint := TPoint.Create(
-    aCenterX + DEFAULT_WIDTH div 2, aCenterY + DEFAULT_HEIGHT div 2 );
+  Result := Points.Point[1];
 end;
 
-initialization
-  GlobalIndexColor := 1;
+function TBox.GetTopLeftPoint: TPoint;
+begin
+  Result := Points.Point[0];
+end;
+
+procedure TBox.InitCoord(const aCenterX, aCenterY: integer);
+begin
+  Points.Clear;
+  Points.Add( aCenterX - DEFAULT_WIDTH div 2, aCenterY - DEFAULT_HEIGHT div 2 );
+  Points.Add( aCenterX + DEFAULT_WIDTH div 2, aCenterY + DEFAULT_HEIGHT div 2 );
+end;
+
+{ TBorder }
+
+procedure TBorder.Draw(const aGraphics: IGPGraphics);
+var
+  X, Y, H, W : integer;
+  DBox : TDrawingBox;
+begin
+  GetXYHW( GetTopLeftPoint, GetBottomRightPoint, false, X, Y, H, W );
+
+  DBox := GetDrawingBox;
+  DBox.Pen.Color := GPColor( DBox.BorderColor );
+  DBox.Pen.Width := 1;
+
+  aGraphics.DrawRectangle( DBox.Pen, X - 5, Y - 5, W + 10, H + 10 );
+end;
+
+function TBorder.GetBottomRightPoint: TPoint;
+begin
+  Result := Parent.GetBottomRightPoint;
+end;
+
+function TBorder.GetTopLeftPoint: TPoint;
+begin
+  Result := Parent.GetTopLeftPoint;
+end;
 
 end.

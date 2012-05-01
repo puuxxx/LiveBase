@@ -9,6 +9,7 @@ interface
     PGDefColor = TGPColor.Red;
 
   type
+
     TPoints = class( TObject )
     strict private
       FPoints : array of TPoint;
@@ -48,13 +49,74 @@ interface
 
 
     function GPColor( const aColor : TColor ) : TGPColor;
+    function GetNextIndexColor : TColor;
+    procedure GetXYHW( const aFirstPoint, aSecondPoint : TPoint;
+      const aCorrectZeroValue : boolean; var aX, aY, aH, aW : integer );
 
 implementation
+
+procedure GetXYHW( const aFirstPoint, aSecondPoint : TPoint;
+  const aCorrectZeroValue : boolean; var aX, aY, aH, aW : integer );
+begin
+ if aSecondPoint.X < aFirstPoint.X then begin
+    aX := aSecondPoint.X;
+    aW := aFirstPoint.X - aSecondPoint.X;
+  end else begin
+    aX := aFirstPoint.X;
+    aW := aSecondPoint.X - aFirstPoint.X;
+  end;
+
+  if aSecondPoint.Y < aFirstPoint.Y then begin
+    aY := aSecondPoint.Y;
+    aH := aFirstPoint.Y - aSecondPoint.Y;
+  end else begin
+    aY := aFirstPoint.Y;
+    aH := aSecondPoint.Y - aFirstPoint.Y;
+  end;
+
+  if aCorrectZeroValue then begin
+    if aH = 0 then aH := 1;
+    if aW = 0 then aW := 1;
+  end;
+end;
 
 function GPColor( const aColor : TColor ) : TGPColor;
 begin
   Result := TGPColor.Create( Byte( aColor), Byte( aColor shr 8 ), Byte( aColor shr 16) );
 end;
+
+var
+  GlobalIndexColor : TColor;
+
+function GetNextIndexColor : TColor;
+var
+  r, g, b : Byte;
+begin
+  r := GetRValue( GlobalIndexColor );
+  g := GetGValue( GlobalIndexColor );
+  b := GetBValue( GlobalIndexColor );
+
+  if r >= 254 then begin
+    r := 1;
+    if g >= 254 then begin
+      g := 1;
+      if b >= 254 then begin
+        b := 1;
+      end else begin
+        b := b + 1;
+      end;
+    end else begin
+      g := g + 1;
+    end;
+  end else begin
+    r := r + 1;
+  end;
+
+  GlobalIndexColor := RGB( r, g, b );
+  Result := GlobalIndexColor;
+end;
+
+{ TPoints }
 
 procedure TPoints.Add(const aX, aY: integer);
 begin
@@ -140,5 +202,9 @@ begin
   BackgroundColor := aColor;
   BorderColor := aColor;
 end;
+
+initialization
+  GlobalIndexColor := 1;
+
 
 end.

@@ -7,7 +7,7 @@ interface
 
 
   type
-    TAreaState = ( asDrawSelect );
+    TAreaState = ( asDrawSelect, asPrimMove );
     TAreaStates = set of TAreaState;
 
     TDrawingArea = class ( TBaseSubscriber )
@@ -17,6 +17,7 @@ interface
       FCommands : TObjectList<TBaseDrawingCommand>;
       FLightedPrimitive : TGraphicPrimitive;   // примитив под курсором
       FStates : TAreaStates;
+      FOldX, FOldY : integer;
 
       procedure ExecuteCommand( const aCommandType : TDrawingCommandType;
         aPrimitive : TGraphicPrimitive; const aValue : variant );
@@ -65,6 +66,8 @@ begin
   FCommands := TObjectList<TBaseDrawingCommand>.Create;
   FLightedPrimitive := FPage.RootPrimitive;
   FStates := [];
+  FOldX := 0;
+  FOldY := 0;
 end;
 
 procedure TDrawingArea.CreatePrimitive(const aX, aY: integer;
@@ -125,14 +128,28 @@ begin
 end;
 
 procedure TDrawingArea.OnMouseDown(Button: TMouseButton; X, Y: Integer);
+var
+  Prim : TGraphicPrimitive;
 begin
   if Button = CONTROL_MOUSE_BUTTON then begin
-    if FPage.IsRootPrimitiveCord( X, Y ) then begin
+    Prim := FPage.GetPrimitiveByCoord( X, Y );
+
+    if Prim is TBackground then begin
       AddState( asDrawSelect );
+      FPage.UnSelectAll;
       FPage.NeedToDrawSelect := true;
-      FPage.SelectPrimitive.FirstPoint := TPoint.Create( X, Y );
-      FPage.SelectPrimitive.SecondPoint := FPage.SelectPrimitive.FirstPoint;
+      FPage.SelectAreaPrimitive.Points.Clear;
+      FPage.SelectAreaPrimitive.Points.Add( X, Y );
+      FPage.SelectAreaPrimitive.Points.Add( X, Y );
+    end else
+    if Prim is TBorder then begin
+      //
+    end else begin
+      AddState( asPrimMove );
+      FPage.SelectOnePrimitive( Prim );
     end;
+
+    FEventModel.Event( EVENT_PLEASE_REPAINT );
   end;
 end;
 
@@ -141,18 +158,29 @@ begin
   FLightedPrimitive := FPage.GetPrimitiveByCoord( aX, aY );
 
   if HasState( asDrawSelect ) then begin
-    FPage.SelectPrimitive.SecondPoint := TPoint.Create( aX, aY );
+    FPage.SelectAreaPrimitive.Points.Point[1] := TPoint.Create( aX, aY );
+
+    FEventModel.Event( EVENT_PLEASE_REPAINT );
+  end else
+  if HasState( asPrimMove ) then begin
+    FPage.ChangeSelectedPos( aX - FOldX, aY - FOldY );
+
     FEventModel.Event( EVENT_PLEASE_REPAINT );
   end else begin
     //
   end;
+
+  FOldX := aX;
+  FOldY := aY;
 end;
 
 procedure TDrawingArea.OnMouseUp(Button: TMouseButton; X, Y: Integer);
 begin
+  DelState( asPrimMove );
   if HasState( asDrawSelect ) then begin
     DelState( asDrawSelect );
     FPage.NeedToDrawSelect := false;
+    FPage.SelectAreaPrimitive.Points.Clear;
     FEventModel.Event( EVENT_PLEASE_REPAINT );
   end;
 end;

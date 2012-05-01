@@ -2,15 +2,16 @@ unit uDrawingPage;
 
 interface
 
-uses uBase, uGraphicPrimitive, Windows, Graphics, GdiPlus, SysUtils, uExceptions;
+uses uBase, uGraphicPrimitive, Windows, Graphics, GdiPlus, SysUtils,
+  uExceptions, System.Generics.Collections;
 
 type
   TDrawingPage = class(TBaseObject)
   private
     FRoot: TBackground;
 
-    // рамка выделения
-    FSelect : TSelect;
+    // рамка выделения мышкой
+    FSelect : TSelectArea;
     FNeedToDrawSelect : boolean;
 
     // нормальная битмапка
@@ -21,7 +22,11 @@ type
     FFakeBitMap : TBitMap;
     FFakeGraphics : IGPGraphics;
 
+    FSelectedPrimitivs : TList<TGraphicPrimitive>;
+
     function GetPrimitiveByIndexColor( const aIndexColor : TColor ) : TGraphicPrimitive;
+    procedure GetPrimitives( var aPrimitives : TGraphicPrimitives );
+
   public
     constructor Create;
     destructor Destroy; override;
@@ -31,10 +36,13 @@ type
     function GetBitmap: TBitMap;
     function GetPrimitiveByCoord( const aX, aY : integer ) : TGraphicPrimitive;
     function GetPrimitiveByID( const aID : string ) : TGraphicPrimitive;
-    function IsRootPrimitiveCord( const aX, aY : integer ) : boolean;
     function AddPrimitive( const aX, aY : integer; const aType : TPrimitiveType ) : TGraphicPrimitive;
+    procedure SelectOnePrimitive( const aPrim : TGraphicPrimitive );
+    procedure UnSelectAll;
+    procedure ChangeSelectedPos( const aDX, aDY : integer );
+
     property RootPrimitive: TBackground read FRoot;
-    property SelectPrimitive : TSelect read FSelect;
+    property SelectAreaPrimitive : TSelectArea read FSelect;
     property NeedToDrawSelect : boolean read FNeedToDrawSelect write FNeedToDrawSelect;
   end;
 
@@ -62,6 +70,15 @@ begin
   Result := PrimitiveFactory( Self, aType );
 end;
 
+procedure TDrawingPage.ChangeSelectedPos(const aDX, aDY: integer);
+var
+  i : integer;
+begin
+  for I := 0 to FSelectedPrimitivs.Count - 1 do begin
+    FSelectedPrimitivs[i].ChangePos( aDX, aDY );
+  end;
+end;
+
 constructor TDrawingPage.Create;
 begin
   inherited Create;
@@ -78,10 +95,11 @@ begin
   NewSize(0, 0); // создадим Graphics
 
   FRoot := TBackground.Create(nil);
-  FSelect := TSelect.Create(nil);
+  FRoot.Points.Add( 0, 0 );
+  FSelect := TSelectArea.Create(nil);
   FNeedToDrawSelect := false;
-  FSelect.FirstPoint := TPoint.Create( 0, 0 );
 
+  FSelectedPrimitivs := TList<TGraphicPrimitive>.Create;
 end;
 
 destructor TDrawingPage.Destroy;
@@ -90,41 +108,27 @@ begin
   FreeAndNil(FBitMap);
   FreeAndNil(FRoot);
   FreeAndNil(FSelect);
+  FreeAndNil(FSelectedPrimitivs);
   
   inherited;
 end;
 
 function TDrawingPage.GetBitmap: TBitMap;
-
-  procedure DrawPrimitive( const aGraphics: IGPGraphics;
-    const aPrimitive: TGraphicPrimitive; const aIndexDraw : boolean );
-  var
-    i: integer;
-    Prim: TGraphicPrimitive;
-  begin
-    if aIndexDraw then begin
-      for i := 0 to aPrimitive.ChildCount - 1 do begin
-        Prim := aPrimitive.Child[i];
-        Prim.DrawIndex(aGraphics);
-        if Prim.ChildCount > 0 then DrawPrimitive( aGraphics, Prim, aIndexDraw );
-      end;
-    end else begin
-      for i := 0 to aPrimitive.ChildCount - 1 do begin
-        Prim := aPrimitive.Child[i];
-        Prim.DrawNormal(aGraphics);
-        if Prim.ChildCount > 0 then DrawPrimitive( aGraphics, Prim, aIndexDraw );
-      end;
-    end;
-  end;
-
+var
+  Prims : TGraphicPrimitives;
+  i : integer;
 begin
-  FRoot.FirstPoint := TPoint.Create(FBitMap.Width, FBitMap.Height);
+  FRoot.Points.Point[0] := TPoint.Create( FBitMap.Width, FBitMap.Height );
 
-  FRoot.DrawNormal(FGraphics);
-  DrawPrimitive( FGraphics, FRoot, false );
-
-  FRoot.DrawIndex( FFakeGraphics );
-  DrawPrimitive( FFakeGraphics, FRoot, true );
+  GetPrimitives( Prims );
+  try
+    for I := 0 to length( Prims ) - 1 do begin
+      Prims[i].DrawNormal( FGraphics );
+      Prims[i].DrawIndex( FFakeGraphics );
+    end;
+  finally
+    Setlength( Prims, 0 );
+  end;
 
   if FNeedToDrawSelect then FSelect.DrawNormal( FGraphics );
 
@@ -197,9 +201,33 @@ begin
   end;
 end;
 
-function TDrawingPage.IsRootPrimitiveCord(const aX, aY: integer): boolean;
+procedure TDrawingPage.GetPrimitives( var aPrimitives : TGraphicPrimitives );
+
+type
+  TByPassProc = reference to procedure ( const aPrim : TGraphicPrimitive;
+    var aList : TGraphicPrimitives );
+
+var
+  Proc : TByPassProc;
+  i : integer;
 begin
-  Result := GetPrimitiveByCoord( aX, aY ) = FRoot;
+  i := 0;
+  Proc := procedure ( const aPrim : TGraphicPrimitive; var aList : TGraphicPrimitives )
+  var
+    j : integer;
+  begin
+    if length( aList ) >= i then begin
+      Setlength( aList, i + 10 );
+    end;
+    aList[i] := aPrim;
+    inc( i );
+
+    if aPrim.ChildCount > 0 then begin
+      for j := 0 to aPrim.ChildCount - 1 do Proc( aPrim.Child[j], aList );
+    end;
+  end;
+  Proc( FRoot, aPrimitives );
+  Setlength( aPrimitives, i );
 end;
 
 procedure TDrawingPage.NewSize(const aWidth, aHeight: integer);
@@ -213,6 +241,25 @@ begin
   FFakeBitMap.Height := aHeight;
 
   FFakeGraphics := TGPGraphics.FromHDC( FFakeBitMap.Canvas.Handle );
+end;
+
+procedure TDrawingPage.SelectOnePrimitive(const aPrim: TGraphicPrimitive);
+begin
+  UnSelectAll;
+  FSelectedPrimitivs.Add( aPrim );
+  TBorder.Create( aPrim );
+end;
+
+procedure TDrawingPage.UnSelectAll;
+var
+  i : integer;
+  Prim : TGraphicPrimitive;
+begin
+  for I := 0 to FSelectedPrimitivs.Count-1 do begin
+    Prim := FSelectedPrimitivs[i];
+    Prim.RemoveAllChildren;
+  end;
+  FSelectedPrimitivs.Clear;
 end;
 
 end.
