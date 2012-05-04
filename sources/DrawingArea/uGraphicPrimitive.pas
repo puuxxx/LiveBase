@@ -9,6 +9,8 @@ interface
   {$M+}
 
   type
+
+
     TPrimitiveType = ( ptNone, ptBox ); // примитивы
     TPrimitiveDrawMode = ( pdmNormal, pdmIndex ); // режим рисования примитива
 

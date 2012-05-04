@@ -1,7 +1,8 @@
 unit uDrawingArea;
 
 interface
-  uses SysUtils, uBase, uEventModel, Graphics, System.UITypes, uDrawingPage,
+  uses {$IFDEF DEBUG} CodeSiteLogging, {$ENDIF}
+    SysUtils, uBase, uEventModel, Graphics, System.UITypes, uDrawingPage,
     uDrawingCommand, uGraphicPrimitive, System.Generics.Collections,
     uDrawingEvent, Classes, System.Types;
 
@@ -119,7 +120,13 @@ end;
 
 function TDrawingArea.GetBitmap: TBitmap;
 begin
+{$IFDEF DEBUG}
+CodeSite.Send('start GetBitMap');
+{$ENDIF}
   Result := FPage.GetBitmap;
+{$IFDEF DEBUG}
+CodeSite.Send('end GetBitMap');
+{$ENDIF}
 end;
 
 function TDrawingArea.HasState(const aState: TAreaState): boolean;

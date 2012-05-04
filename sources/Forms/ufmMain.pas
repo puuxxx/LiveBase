@@ -9,6 +9,9 @@ uses
   uDrawingArea, uEventModel, uDrawingEvent, JvWndProcHook, JvComponentBase,
   JvMouseGesture, uGraphicPrimitive;
 
+
+const
+  WM_PLEASEREPAINT = WM_USER+ 1;
 type
   TfmMain = class(TfmBase)
     pb: TPaintBox;
@@ -16,6 +19,7 @@ type
     ColorBox1: TColorBox;
     pbBackground: TPaintBox;
     Panel2: TPanel;
+    Timer1: TTimer;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender: TObject);
@@ -35,6 +39,8 @@ type
   private
     FArea: TDrawingArea;
     pt : TPrimitiveType;
+
+    procedure Rep ( var aMsg : TMessage ); message  WM_PLEASEREPAINT;
   protected
     procedure ProcessEvent( const aEventID: TEventID; const aEventData: variant ); override;
   public
@@ -122,7 +128,6 @@ procedure TfmMain.pbPaint(Sender: TObject);
 var
   Bmp : TBitMap;
 begin
-  Bmp := FArea.AreaBitmap;
   pb.Canvas.Draw(0, 0, FArea.AreaBitmap);
 end;
 
@@ -133,8 +138,13 @@ begin
     pb.Repaint;
   end else
   if aEventID = EVENT_PLEASE_REPAINT then begin
-    pb.Repaint;
+    pbPaint(nil);
   end;
+end;
+
+procedure TfmMain.Rep(var aMsg: TMessage);
+begin
+ pbPaint(nil);
 end;
 
 end.

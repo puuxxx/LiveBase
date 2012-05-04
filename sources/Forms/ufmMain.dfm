@@ -71,4 +71,9 @@ inherited fmMain: TfmMain
       OnMouseDown = Panel2MouseDown
     end
   end
+  object Timer1: TTimer
+    Interval = 20
+    Left = 440
+    Top = 224
+  end
 end

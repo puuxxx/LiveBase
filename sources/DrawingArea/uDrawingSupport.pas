@@ -10,6 +10,54 @@ interface
 
   type
 
+    ICoordConverter = interface
+      function LogToScreen( aValue : Extended ) : integer; overload;
+      function ScreenToLog( aValue : integer ) : Extended; overload;
+
+      procedure LogToScreen( aLogVal1, aLogVal2 : Extended; var aScrVal1, aScrVal2 : integer ); overload;
+      procedure ScreenToLog( aScrVal1, aScrVal2 : integer; aLogVal1, aLogVal2 : Extended ); overload;
+    end;
+
+    IDrawingPage = interface
+      procedure DrawWhat;
+    end;
+
+    IFigure = interface
+      procedure SetBackgroundColor( aValue : TColor );
+      function GetBackgroundColor : TColor;
+      procedure SetBorderColor( aValue : TColor );
+      function GetBorderColor : TColor;
+      procedure SetBorderWidth( aValue : byte );
+      function GetBorderWidth : byte;
+      procedure SetIndexColor( aValue : TColor );
+      function GetIndexColor : TColor;
+      function GetNextFigure : IFigure;
+      procedure SetNextFigure ( aValue : IFigure );
+      function GetPrevFigure : IFigure;
+      procedure SetPrevFigure ( aValue : IFigure );
+      function GetParentFigure : IFigure;
+      procedure SetParentFigure ( aValue : IFigure );
+      procedure SetFirstChildFigure( aValue : IFigure );
+      function GetFirstChildFigure : IFigure;
+
+      procedure Draw( const aPage : IDrawingPage );
+      procedure DrawIndex( const aPage : IDrawingPage );
+
+      property BackgroundColor : TColor read GetBackgroundColor write SetBackgroundColor;
+      property BorderColor : TColor read GetBorderColor write SetBorderColor;
+      property BorderWidth : byte read GetBorderWidth write SetBorderWidth;
+      property IndexColor : TColor read GetIndexColor write SetIndexColor;
+
+      procedure AddChildFigure( const aFigure : IFigure );
+      procedure RemoveChildFigure( const aFigure : IFigure );
+      procedure ClearChildrensFigure;
+
+      property ParentFigure : IFigure read GetParentFigure write SetParentFigure;
+      property NextFigure : IFigure read GetNextFigure write SetNextFigure;
+      property PrevFigure : IFigure read GetPrevFigure write SetPrevFigure;
+      property FirstChildFigure : IFigure read GetFirstChildFigure write SetFirstChildFigure;
+    end;
+
     TPoints = class( TObject )
     strict private
       FPoints : array of TPoint;
