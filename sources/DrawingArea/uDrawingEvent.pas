@@ -2,7 +2,7 @@ unit uDrawingEvent;
 
 interface
 
-  uses uEventModel, uGraphicPrimitive, Graphics, uDrawingCommand, uVarArrays,
+  uses uEventModel, Graphics, uDrawingCommand, uVarArrays,
     uExceptions, Variants;
 
   const

@@ -27,17 +27,13 @@ uses
   uTestuDrawingArea in 'uTestuDrawingArea.pas',
   uDrawingArea in '..\..\sources\uDrawingArea.pas',
   uTestDrawingSupport in 'uTestDrawingSupport.pas',
-  uGraphicPrimitive in '..\..\sources\DrawingArea\uGraphicPrimitive.pas',
   uDrawingSupport in '..\..\sources\DrawingArea\uDrawingSupport.pas',
-  uTestuGraphicPrimitive in 'uTestuGraphicPrimitive.pas',
-  uTestuDrawingPage in 'uTestuDrawingPage.pas',
-  uDrawingPage in '..\..\sources\DrawingArea\uDrawingPage.pas',
-  uTestuDrawingCommand in 'uTestuDrawingCommand.pas',
   uDrawingCommand in '..\..\sources\DrawingArea\uDrawingCommand.pas',
-  uTestuDrawingEvent in 'uTestuDrawingEvent.pas',
   uDrawingEvent in '..\..\sources\DrawingArea\uDrawingEvent.pas',
   uLines in '..\..\..\lib\VarArrays\uLines.pas',
-  uVarArrays in '..\..\..\lib\VarArrays\uVarArrays.pas';
+  uVarArrays in '..\..\..\lib\VarArrays\uVarArrays.pas',
+  uDrawingPrimitive in '..\..\sources\DrawingArea\uDrawingPrimitive.pas',
+  uTestuDrawingPrimitive in 'uTestuDrawingPrimitive.pas';
 
 {$R *.RES}
 

@@ -13,7 +13,7 @@ interface
 
 uses
   TestFramework, uEventModel, uExceptions, uVarArrays, Graphics, uDrawingCommand,
-  uDrawingEvent, uGraphicPrimitive, Variants;
+  uDrawingEvent, Variants;
 
 type
   // Test methods for class TDrawingCommandData

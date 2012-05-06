@@ -29,21 +29,11 @@ type
     procedure TestClear;
   end;
 
-  TestTDrawingBox = class(TTestCase )
-  strict private
-    FDrawingBox: TDrawingBox;
-  public
-    procedure SetUp; override;
-    procedure TearDown; override;
+  TestTDrwingFunc = class ( TTestCase )
   published
-    procedure TestBrushes;
-    procedure TestPen;
-    procedure TestSetColor;
-  end;
+    procedure TestGpColor;
+    procedure TestGetNextColor;
 
-  TestDrawingAreaStatic = class( TTestCase )
-  published
-    procedure TestStatic;
   end;
 
 implementation
@@ -82,7 +72,7 @@ begin
   FPoints.Add( P );
   Check( FPoints.Count = High(Word) - Low(Word) + 3, 'Add point Obj' );
 
-  P := FPoints.Point[1];
+  P := FPoints[1];
   CheckEquals( 100, P.X );
   CheckEquals( 100, P.Y );
 end;
@@ -97,55 +87,26 @@ begin
   Check( FPoints.Count = 0, 'Points clear' );
 end;
 
-{ TestTDrawingBox }
 
-procedure TestTDrawingBox.SetUp;
-begin
-  FDrawingBox := TDrawingBox.Create;
-end;
+{ TestTDrwingFunc }
 
-procedure TestTDrawingBox.TearDown;
-begin
-  FDrawingBox.Free;
-  FDrawingBox := nil;
-end;
-
-procedure TestTDrawingBox.TestBrushes;
-begin
-  CheckNotNull( FDrawingBox.SolidBrush );
-  Check( FDrawingBox.SolidBrush is TGPSolidBrush );
-end;
-
-
-procedure TestTDrawingBox.TestPen;
-begin
-  CheckNotNull( FDrawingBox.Pen );
-  Check( FDrawingBox.Pen is TGPPen );
-end;
-
-procedure TestTDrawingBox.TestSetColor;
+procedure TestTDrwingFunc.TestGetNextColor;
 var
-  c : TColor;
+  N1, N2 : TColor;
 begin
- c := clMenu;
-
- FDrawingBox.SetColor( c );
-
- CheckEquals( c, FDrawingBox.BackgroundColor );
- CheckEquals( c, FDrawingBox.BorderColor );
+  N1 := TDrawingFunc.GetNextIndexColor;
+  N2 := TDrawingFunc.GetNextIndexColor;
+  Check( N1 <> N2 );
 end;
 
-{ TestDrawingAreaStatic }
-
-procedure TestDrawingAreaStatic.TestStatic;
+procedure TestTDrwingFunc.TestGpColor;
 begin
- Check( TGPColor.Red = GPColor( clRed ).Value );
+
+  Check( TDrawingFunc.GPColor( clRed ).Value = TGPColor.Red );
 end;
 
 initialization
   RegisterTest(TestTPoints.Suite);
-  RegisterTest(TestTDrawingBox.Suite);
-  RegisterTest(TestDrawingAreaStatic.Suite);
 
 end.
 

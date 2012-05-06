@@ -16,8 +16,6 @@ uses
   ufmBase in 'Forms\ufmBase.pas' {fmBase},
   ufmMain in 'Forms\ufmMain.pas' {fmMain},
   uBaseEquipment in 'Equipment\uBaseEquipment.pas',
-  uGraphicPrimitive in 'DrawingArea\uGraphicPrimitive.pas',
-  uDrawingPage in 'DrawingArea\uDrawingPage.pas',
   uDrawingTypes in 'DrawingArea\uDrawingTypes.pas',
   uDrawingSupport in 'DrawingArea\uDrawingSupport.pas',
   uDrawingCommand in 'DrawingArea\uDrawingCommand.pas',

@@ -7,7 +7,7 @@ uses
   System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, ufmBase, Vcl.StdCtrls, Vcl.ExtCtrls,
   uDrawingArea, uEventModel, uDrawingEvent, JvWndProcHook, JvComponentBase,
-  JvMouseGesture, uGraphicPrimitive;
+  JvMouseGesture;
 
 
 const
@@ -38,7 +38,7 @@ type
     procedure pbDragDrop(Sender, Source: TObject; X, Y: Integer);
   private
     FArea: TDrawingArea;
-    pt : TPrimitiveType;
+
 
     procedure Rep ( var aMsg : TMessage ); message  WM_PLEASEREPAINT;
   protected
@@ -58,7 +58,7 @@ uses uEnvironment;
 
 procedure TfmMain.ColorBox1Change(Sender: TObject);
 begin
-  FArea.BackgroundColor := ColorBox1.Selected;
+  //FArea.BackgroundColor := ColorBox1.Selected;
 end;
 
 procedure TfmMain.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -86,7 +86,6 @@ procedure TfmMain.Panel2MouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   ( Sender as TControl ).BeginDrag( false );
-  pt := ptBox;
 end;
 
 procedure TfmMain.pbBackgroundPaint(Sender: TObject);
@@ -97,7 +96,7 @@ end;
 
 procedure TfmMain.pbDragDrop(Sender, Source: TObject; X, Y: Integer);
 begin
-  FArea.CreatePrimitive( X, Y, pt );
+ // FArea.CreatePrimitive( X, Y, pt );
 end;
 
 procedure TfmMain.pbDragOver(Sender, Source: TObject; X, Y: Integer;

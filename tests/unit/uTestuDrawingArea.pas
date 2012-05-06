@@ -12,7 +12,7 @@ unit uTestuDrawingArea;
 interface
 
 uses
-  TestFramework, uDrawingArea, uBase, SysUtils, uEventModel, Graphics, uGraphicPrimitive,
+  TestFramework, uDrawingArea, uBase, SysUtils, uEventModel, Graphics,
   Classes, System.UITypes;
 
 type
@@ -52,9 +52,9 @@ end;
 procedure TestTDrawingArea.TestOne;
 var
   i : integer;
-  pt : TPrimitiveType;
-begin
 
+begin
+{
   // тестируем изменение размера и рисование фона
   FDrawingArea.OnNewSize( Low(Integer), 1 );
   FDrawingArea.AreaBitmap;
@@ -86,7 +86,7 @@ begin
   for pt := ptBox to High( TPrimitiveType ) do begin
     FDrawingArea.CreatePrimitive( 10, 10, pt  );
   end;
-
+         }
 end;
 
 initialization
