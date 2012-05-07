@@ -25,7 +25,7 @@ interface
     public
       constructor Create;
       destructor Destroy; override;
-      procedure Add( const aX, aY : integer ); overload;
+      procedure Add( const aX, aY : Extended ); overload;
       procedure Add( const aPoint : TDrawingPoint ); overload;
       procedure Clear;
       property Count : integer read FCount;
@@ -37,7 +37,7 @@ interface
     public
       class function GPColor( const aColor : TColor ) : TGPColor;
       class function GetNextIndexColor : TColor;
-      class procedure GetXYHW( const aFirstPoint, aSecondPoint : TPoint;
+      class procedure GetXYHW( const aX1, aY1, aX2, aY2 : integer;
         const aCorrectZeroValue : boolean; var aX, aY, aH, aW : integer );
     end;
 
@@ -48,7 +48,7 @@ var
 
 { TPoints }
 
-procedure TPoints.Add(const aX, aY: integer);
+procedure TPoints.Add( const aX, aY: Extended );
 begin
   Add( TDrawingPoint.Create( aX, aY ) );
 end;
@@ -132,23 +132,23 @@ begin
   Result := GlobalIndexColor;
 end;
 
-class procedure TDrawingFunc.GetXYHW(const aFirstPoint, aSecondPoint: TPoint;
-  const aCorrectZeroValue: boolean; var aX, aY, aH, aW: integer);
+class procedure TDrawingFunc.GetXYHW( const aX1, aY1, aX2, aY2 : integer;
+  const aCorrectZeroValue: boolean; var aX, aY, aH, aW: integer );
 begin
- if aSecondPoint.X < aFirstPoint.X then begin
-    aX := aSecondPoint.X;
-    aW := aFirstPoint.X - aSecondPoint.X;
+ if aX2 < aX1 then begin
+    aX := aX2;
+    aW := aX1 - aX2;
   end else begin
-    aX := aFirstPoint.X;
-    aW := aSecondPoint.X - aFirstPoint.X;
+    aX := aX1;
+    aW := aX2 - aX1;
   end;
 
-  if aSecondPoint.Y < aFirstPoint.Y then begin
-    aY := aSecondPoint.Y;
-    aH := aFirstPoint.Y - aSecondPoint.Y;
+  if aY2 < aY2 then begin
+    aY := aY2;
+    aH := aY1 - aY2;
   end else begin
-    aY := aFirstPoint.Y;
-    aH := aSecondPoint.Y - aFirstPoint.Y;
+    aY := aY1;
+    aH := aY2 - aY1;
   end;
 
   if aCorrectZeroValue then begin

@@ -4,9 +4,13 @@ interface
   uses uBase, uEventModel, uDrawingSupport, Graphics, GdiPlus, uExceptions,
     System.SysUtils, uDrawingPage;
 
-  type
-    TFigure = class;
+  {$M+}
 
+  type
+    TFigureType = ( ftNone, ftBackground, ftBox );
+
+    TFigure = class;
+    TFigureClass = class of TFigure;
     TFigureProc = reference to procedure ( aFigure : TFigure );
     TFigure = class( TBaseSubscriber )
     strict private
@@ -48,13 +52,16 @@ interface
       property BackgroundColor : TColor read GetBackgroundColor write SetBackgroundColor;
       property BorderColor : TColor read GetBorderColor write SetBorderColor;
       property BorderWidth : byte read GetBorderWidth write SetBorderWidth;
+
+      // Дополнительные действия после создания
+      procedure AfterCreate; virtual;
+      procedure SetInitialCoord( const aX, aY : Extended ); virtual;
     public
       constructor Create;
       destructor Destroy; override;
 
       // Нормальное рисование и рисование индексным цветом
-      procedure Draw( const aPage : TDrawingPage ); virtual;
-      procedure DrawIndex( const aPage : TDrawingPage ); virtual;
+      procedure Draw( const aPage: TDrawingPage; const aIndexPage: TDrawingPage ); virtual;
 
       // Работа с потомками
       procedure AddChildFigure( const aFigure : TFigure );
@@ -80,13 +87,65 @@ interface
     // Фон
     TBackground = class( TFigure )
     public
-      procedure Draw( const aPage : TDrawingPage ); override;
-      procedure DrawIndex( const aPage : TDrawingPage ); override;
+      procedure Draw( const aPage: TDrawingPage; const aIndexPage: TDrawingPage ); override;
     published
       property BackgroundColor;
     end;
 
+    // Закрашенный квадрат
+    TBox = class( TFigure )
+    protected
+      procedure SetInitialCoord( const aX, aY : Extended ); override;
+      procedure AfterCreate; override;
+    public
+      procedure Draw( const aPage: TDrawingPage; const aIndexPage: TDrawingPage ); override;
+    published
+      property BackgroundColor;
+      property BorderColor;
+      property BorderWidth;
+    end;
+
+    function FigureFactory( const aFigureType : TFigureType ) : TFigure; overload;
+    function FigureFactory( const aFigureType : TFigureType; const aX, aY : Extended ) : TFigure; overload;
+
 implementation
+
+uses
+  uVertexPoint;
+
+const
+  DEFAULT_FIGURE_WIDTH = 100;
+  DEFAULT_FIGURE_HEIGHT = 100;
+
+function FigureFactory( const aFigureType : TFigureType ) : TFigure;
+begin
+  Result := FigureFactory( aFigureType, 0, 0 );
+end;
+
+function FigureFactory( const aFigureType : TFigureType; const aX, aY : Extended ) : TFigure;
+const
+  FigureClasses : array[TFigureType] of TFigureClass = (
+    nil, TBackground, TBox
+  );
+var
+  C : TFigureClass;
+  F : TFigure;
+begin
+  F := nil;
+  C := FigureClasses[ aFigureType ];
+  if Assigned( C ) then begin
+    F := C.Create;
+    try
+      F.AfterCreate;
+      F.SetInitialCoord( aX, aY );
+    except
+      FreeAndNil( F );
+      raise;
+    end;
+  end;
+
+  Result := F;
+end;
 
 { TFigure }
 
@@ -109,6 +168,11 @@ begin
   aFigure.NextFigure := nil;
 end;
 
+procedure TFigure.AfterCreate;
+begin
+//
+end;
+
 procedure TFigure.ByPassChilds(const aProc: TFigureProc);
 
   procedure ByPass( const aFigure : TFigure );
@@ -128,8 +192,6 @@ begin
 end;
 
 procedure TFigure.ClearChildrensFigure;
-var
-  F, FN : TFigure;
 begin
   while Assigned( FirstChildFigure ) do begin
     RemoveChildFigure( FirstChildFigure );
@@ -157,12 +219,7 @@ begin
   inherited;
 end;
 
-procedure TFigure.Draw(const aPage: TDrawingPage);
-begin
-//
-end;
-
-procedure TFigure.DrawIndex(const aPage: TDrawingPage);
+procedure TFigure.Draw(const aPage: TDrawingPage; const aIndexPage: TDrawingPage);
 begin
 //
 end;
@@ -218,7 +275,12 @@ end;
 
 function TFigure.GetPrevFigure: TFigure;
 begin
-  FPrev := FPrev;
+  Result := FPrev;
+end;
+
+procedure TFigure.SetInitialCoord( const aX, aY: Extended );
+begin
+//
 end;
 
 procedure TFigure.RemoveChildFigure( aFigure: TFigure );
@@ -277,14 +339,33 @@ end;
 
 { TBackground }
 
-procedure TBackground.Draw(const aPage: TDrawingPage);
+procedure TBackground.Draw(const aPage: TDrawingPage; const aIndexPage: TDrawingPage);
 begin
   aPage.Clear( BackgroundColor );
+  aIndexPage.Clear( IndexColor );
 end;
 
-procedure TBackground.DrawIndex(const aPage: TDrawingPage);
+{ TBox }
+
+procedure TBox.AfterCreate;
 begin
-  aPage.Clear( IndexColor );
+  inherited;
+  AddVertextPoints( Self );
+end;
+
+procedure TBox.Draw(const aPage: TDrawingPage; const aIndexPage: TDrawingPage);
+begin
+  if Points.Count <> 2 then ContractFailure;
+
+  aPage.DrawFillRect( Points[0], Points[1], BackgroundColor, BorderColor, BorderWidth );
+  aPage.DrawFillRect( Points[0], Points[1], IndexColor, IndexColor, BorderWidth );
+end;
+
+procedure TBox.SetInitialCoord( const aX, aY: Extended );
+begin
+  Points.Clear;
+  Points.Add( aX - DEFAULT_FIGURE_WIDTH div 2, aY - DEFAULT_FIGURE_HEIGHT div 2 );
+  Points.Add( aX + DEFAULT_FIGURE_WIDTH div 2, aY + DEFAULT_FIGURE_HEIGHT div 2 );
 end;
 
 end.

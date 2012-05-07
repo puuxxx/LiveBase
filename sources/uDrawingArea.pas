@@ -36,6 +36,8 @@ interface
       procedure OnMouseDown( Button: TMouseButton; X, Y: Integer );
       procedure OnMouseUp( Button: TMouseButton; X, Y: Integer );
 
+      procedure CreateFigure( const aType : TFigureType; const aX, aY : integer );
+
       property AreaBitmap : TBitmap read GetBitmap;
     end;
 
@@ -69,6 +71,16 @@ begin
   FRoot := TBackground.Create;
 end;
 
+procedure TDrawingArea.CreateFigure( const aType: TFigureType;
+  const aX, aY: integer );
+var
+  F : TFigure;
+begin
+  F := FigureFactory( aType, FCoordConverter.ScreenToLog( aX ),
+    FCoordConverter.ScreenToLog( aY ) );
+  if Assigned( F ) then FRoot.AddChildFigure( F );
+end;
+
 procedure TDrawingArea.DelState(const aState: TAreaState);
 begin
   FStates := FStates - [ aState ];
@@ -85,8 +97,7 @@ end;
 function TDrawingArea.GetBitmap: TBitmap;
 begin
   FRoot.ByPassChilds( procedure( aFigure : TFigure ) begin
-    aFigure.Draw( FPage );
-    aFigure.DrawIndex( FIndexPage );
+    aFigure.Draw( FPage, FIndexPage );
   end );
 
   Result := FPage.GetBitMap;

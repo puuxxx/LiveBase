@@ -38,6 +38,10 @@ interface
       // закрашиваем всю страницу заданным цветом
       procedure Clear( const aColor : TColor );
 
+      // рисуем квадрат
+      procedure DrawFillRect( const aP1, aP2 : TDrawingPoint;
+        const aBackgroundColor, aBorderColor : TColor; const aBorderWidth : byte );
+
       procedure SetScreenSize( const aWidth, aHeight : integer );
       function GetBitMap : TBitMap;
     end;
@@ -78,9 +82,9 @@ begin
   FBitMap := TBitmap.Create;
   FBitMap.PixelFormat := pf24bit;
   FCoordConverter := aCoordConverter;
-  FGraphics := TGPGraphics.Create( FBitMap.Canvas.Handle );
   FPen := TGPPen.Create( GpDefColor );
   FBrush := TGPSolidBrush.Create( GPDefColor );
+  SetScreenSize( 100, 100 );
 end;
 
 destructor TDrawingPage.Destroy;
@@ -93,9 +97,31 @@ begin
   inherited;
 end;
 
+procedure TDrawingPage.DrawFillRect( const aP1, aP2 : TDrawingPoint;
+  const aBackgroundColor, aBorderColor: TColor; const aBorderWidth: byte);
+var
+  X1, Y1, X2, Y2,
+  X, Y, H, W : integer;
+
+begin
+  FBrush.Color := TDrawingFunc.GPColor( aBackgroundColor );
+
+  FCoordConverter.LogToScreen( aP1.X, aP1.Y, X1, Y1 );
+  FCoordConverter.LogToScreen( aP2.X, aP2.Y, X2, Y2 );
+
+  TDrawingFunc.GetXYHW( X1, Y1, X2, Y2, true, X, Y, W, H );
+
+  FGraphics.FillRectangle( FBrush, X, Y, W, H );
+
+  FPen.Color := TDrawingFunc.GPColor( aBorderColor );
+  FPen.Alignment := PenAlignmentInset;
+  FPen.Width := aBorderWidth;
+  FGraphics.DrawRectangle( FPen, X, Y, W, H );
+end;
+
 procedure TDrawingPage.Clear(const aColor: TColor);
 begin
-  FGraphics.Clear( TDrawingFunc.GPColor( clRed ) );
+  FGraphics.Clear( TDrawingFunc.GPColor( aColor ) );
 end;
 
 function TDrawingPage.GetBitMap: TBitMap;
@@ -107,6 +133,7 @@ procedure TDrawingPage.SetScreenSize(const aWidth, aHeight: integer);
 begin
   FBitMap.Width := aWidth;
   FBitMap.Height := aHeight;
+  FGraphics := TGPGraphics.FromHDC( FBitMap.Canvas.Handle  );
 end;
 
 end.

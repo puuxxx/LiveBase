@@ -7,7 +7,7 @@ uses
   System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, ufmBase, Vcl.StdCtrls, Vcl.ExtCtrls,
   uDrawingArea, uEventModel, uDrawingEvent, JvWndProcHook, JvComponentBase,
-  JvMouseGesture;
+  JvMouseGesture, uDrawingPrimitive;
 
 
 const
@@ -24,6 +24,7 @@ type
     procedure pbMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure pbMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+    procedure pbDblClick(Sender: TObject);
   private
     FArea: TDrawingArea;
   protected
@@ -56,6 +57,16 @@ end;
 procedure TfmMain.FormResize(Sender: TObject);
 begin
   FArea.OnNewSize(pb.Width, pb.Height);
+end;
+
+procedure TfmMain.pbDblClick(Sender: TObject);
+var
+  P : TPoint;
+begin
+  GetCursorPos( P  );
+  P := pb.ScreenToClient( P );
+
+  FArea.CreateFigure( ftBox, P.X, P.Y );
 end;
 
 procedure TfmMain.pbMouseDown(Sender: TObject; Button: TMouseButton;

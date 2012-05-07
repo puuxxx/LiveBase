@@ -16,13 +16,12 @@ inherited fmMain: TfmMain
     Height = 502
     Margins.Bottom = 10
     Align = alClient
+    OnDblClick = pbDblClick
     OnMouseDown = pbMouseDown
     OnMouseMove = pbMouseMove
     OnMouseUp = pbMouseUp
     OnPaint = pbPaint
-    ExplicitLeft = 223
-    ExplicitTop = 0
-    ExplicitWidth = 664
-    ExplicitHeight = 515
+    ExplicitLeft = 8
+    ExplicitTop = -2
   end
 end

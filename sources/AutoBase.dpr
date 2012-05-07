@@ -23,7 +23,8 @@ uses
   uLines in '..\..\lib\VarArrays\uLines.pas',
   uVarArrays in '..\..\lib\VarArrays\uVarArrays.pas',
   uDrawingPrimitive in 'DrawingArea\uDrawingPrimitive.pas',
-  uDrawingPage in 'DrawingArea\uDrawingPage.pas';
+  uDrawingPage in 'DrawingArea\uDrawingPage.pas',
+  uVertexPoint in 'DrawingArea\uVertexPoint.pas';
 
 {$R *.res}
 
