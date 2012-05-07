@@ -2,7 +2,7 @@ unit uDrawingPrimitive;
 
 interface
   uses uBase, uEventModel, uDrawingSupport, Graphics, GdiPlus, uExceptions,
-    System.SysUtils;
+    System.SysUtils, uDrawingPage;
 
   type
     TFigure = class;
@@ -53,8 +53,8 @@ interface
       destructor Destroy; override;
 
       // Нормальное рисование и рисование индексным цветом
-      procedure Draw( const aPage : IDrawingPage );
-      procedure DrawIndex( const aPage : IDrawingPage );
+      procedure Draw( const aPage : TDrawingPage ); virtual;
+      procedure DrawIndex( const aPage : TDrawingPage ); virtual;
 
       // Работа с потомками
       procedure AddChildFigure( const aFigure : TFigure );
@@ -74,6 +74,16 @@ interface
       //
       property IndexColor : TColor read GetIndexColor write SetIndexColor;
       property Points : TPoints read FPoints;
+    end;
+
+
+    // Фон
+    TBackground = class( TFigure )
+    public
+      procedure Draw( const aPage : TDrawingPage ); override;
+      procedure DrawIndex( const aPage : TDrawingPage ); override;
+    published
+      property BackgroundColor;
     end;
 
 implementation
@@ -105,10 +115,10 @@ procedure TFigure.ByPassChilds(const aProc: TFigureProc);
   var
     F : TFigure;
   begin
+    aProc( aFigure );
     F := aFigure.FirstChildFigure;
     while Assigned( F ) do begin
-      aProc( F );
-      if Assigned( F.FirstChildFigure ) then ByPass( F );
+      if Assigned( F.FirstChildFigure ) then ByPass( F ) else aProc( F );
       F := F.NextFigure;
     end;
   end;
@@ -135,6 +145,9 @@ begin
   FFirstChild := nil;
   FNext := nil;
   FPrev := nil;
+  FBackgroundColor := DefColor;
+  FBorderColor := DefColor;
+  FBorderWidth := 1;
 end;
 
 destructor TFigure.Destroy;
@@ -144,12 +157,12 @@ begin
   inherited;
 end;
 
-procedure TFigure.Draw(const aPage: IDrawingPage);
+procedure TFigure.Draw(const aPage: TDrawingPage);
 begin
 //
 end;
 
-procedure TFigure.DrawIndex(const aPage: IDrawingPage);
+procedure TFigure.DrawIndex(const aPage: TDrawingPage);
 begin
 //
 end;
@@ -260,6 +273,18 @@ end;
 procedure TFigure.SetPrevFigure(aValue: TFigure);
 begin
   FPrev := aValue;
+end;
+
+{ TBackground }
+
+procedure TBackground.Draw(const aPage: TDrawingPage);
+begin
+  aPage.Clear( BackgroundColor );
+end;
+
+procedure TBackground.DrawIndex(const aPage: TDrawingPage);
+begin
+  aPage.Clear( IndexColor );
 end;
 
 end.

@@ -4,7 +4,7 @@ interface
   uses {$IFDEF DEBUG} CodeSiteLogging, {$ENDIF}
     SysUtils, uBase, uEventModel, Graphics, System.UITypes,
     uDrawingCommand, System.Generics.Collections,
-    uDrawingEvent, Classes, System.Types;
+    uDrawingEvent, Classes, System.Types, uDrawingPrimitive, uDrawingPage;
 
 
   type
@@ -15,7 +15,12 @@ interface
     strict private
       FEventModel : TEventModel;
       FCommands : TObjectList<TBaseDrawingCommand>;
-      FStates : TAreaStates;
+      FStates : TAreaStates; // состояния области рисования
+      FRoot : TFigure;       // корневая фигурв
+      FPage,                 // Холст для рисования
+      FIndexPage             // Холст для рисования индексными цветами
+                   : TDrawingPage;
+      FCoordConverter : ICoordConverter;
 
       function GetBitmap: TBitmap;
 
@@ -53,6 +58,15 @@ begin
   FEventModel := aEventModel;
   FCommands := TObjectList<TBaseDrawingCommand>.Create;
   FStates := [];
+
+  FCoordConverter := TCoordConverter.Create;
+
+  FPage := TDrawingPage.Create( FCoordConverter );
+  FIndexPage := TDrawingPage.Create( FCoordConverter );
+
+  OnNewSize( 10, 10 );
+
+  FRoot := TBackground.Create;
 end;
 
 procedure TDrawingArea.DelState(const aState: TAreaState);
@@ -62,13 +76,20 @@ end;
 
 destructor TDrawingArea.Destroy;
 begin
-  //
+  FreeAndNil( FPage );
+  FreeANdNil( FIndexPage );
+  FCoordConverter := nil;
   inherited;
 end;
 
 function TDrawingArea.GetBitmap: TBitmap;
 begin
-//
+  FRoot.ByPassChilds( procedure( aFigure : TFigure ) begin
+    aFigure.Draw( FPage );
+    aFigure.DrawIndex( FIndexPage );
+  end );
+
+  Result := FPage.GetBitMap;
 end;
 
 function TDrawingArea.HasState(const aState: TAreaState): boolean;
@@ -93,7 +114,7 @@ end;
 
 procedure TDrawingArea.OnNewSize(const aWidth, aHeight: integer);
 begin
-//
+  FPage.SetScreenSize( aWidth, aHeight );
 end;
 
 

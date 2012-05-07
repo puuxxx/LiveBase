@@ -21,7 +21,9 @@ uses
   uDrawingCommand in 'DrawingArea\uDrawingCommand.pas',
   uDrawingEvent in 'DrawingArea\uDrawingEvent.pas',
   uLines in '..\..\lib\VarArrays\uLines.pas',
-  uVarArrays in '..\..\lib\VarArrays\uVarArrays.pas';
+  uVarArrays in '..\..\lib\VarArrays\uVarArrays.pas',
+  uDrawingPrimitive in 'DrawingArea\uDrawingPrimitive.pas',
+  uDrawingPage in 'DrawingArea\uDrawingPage.pas';
 
 {$R *.res}
 

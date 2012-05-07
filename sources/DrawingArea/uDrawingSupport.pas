@@ -6,41 +6,30 @@ interface
 
   const
     DefColor = clRed;
-    PGDefColor = TGPColor.Red;
+    GPDefColor = TGPColor.Red;
 
   type
-    ICoordConverter = interface;
-    IDrawingPage = interface;
-
-    // Конвертер логических координат в экранные
-    ICoordConverter = interface
-      function LogToScreen( aValue : Extended ) : integer; overload;
-      function ScreenToLog( aValue : integer ) : Extended; overload;
-
-      procedure LogToScreen( aLogVal1, aLogVal2 : Extended; var aScrVal1, aScrVal2 : integer ); overload;
-      procedure ScreenToLog( aScrVal1, aScrVal2 : integer; aLogVal1, aLogVal2 : Extended ); overload;
-    end;
-
-    // Виртуальный холст
-    IDrawingPage = interface
-      procedure DrawWhat;
-    end;
-
     // Точки
+    TDrawingPoint = record
+    public
+      X : Extended;
+      Y : Extended;
+      constructor Create(const aX, aY : Extended);
+    end;
     TPoints = class( TObject )
     strict private
-      FPoints : array of TPoint;
+      FPoints : array of TDrawingPoint;
       FCount : integer;
-      function GetPount( aIndex : integer ): TPoint;
-      procedure SetPoint(aIndex: integer; const Value: TPoint);
+      function GetPount( aIndex : integer ): TDrawingPoint;
+      procedure SetPoint(aIndex: integer; const Value: TDrawingPoint);
     public
       constructor Create;
       destructor Destroy; override;
       procedure Add( const aX, aY : integer ); overload;
-      procedure Add( const aPoint : TPoint ); overload;
+      procedure Add( const aPoint : TDrawingPoint ); overload;
       procedure Clear;
       property Count : integer read FCount;
-      property Point[ aIndex : integer ] : TPoint read GetPount write SetPoint; default;
+      property Point[ aIndex : integer ] : TDrawingPoint read GetPount write SetPoint; default;
     end;
 
     // Вспмогательные функции для рисования
@@ -61,10 +50,10 @@ var
 
 procedure TPoints.Add(const aX, aY: integer);
 begin
-  Add( TPoint.Create( aX, aY ) );
+  Add( TDrawingPoint.Create( aX, aY ) );
 end;
 
-procedure TPoints.Add(const aPoint: TPoint);
+procedure TPoints.Add(const aPoint: TDrawingPoint);
 const
   AddCount = 5;
 begin
@@ -94,7 +83,7 @@ begin
   inherited;
 end;
 
-function TPoints.GetPount(aIndex: integer): TPoint;
+function TPoints.GetPount(aIndex: integer): TDrawingPoint;
 begin
   if ( aIndex >= 0 ) and ( aIndex < Count ) then begin
     Result := FPoints[ aIndex ];
@@ -104,7 +93,7 @@ begin
 end;
 
 
-procedure TPoints.SetPoint(aIndex: integer; const Value: TPoint);
+procedure TPoints.SetPoint(aIndex: integer; const Value: TDrawingPoint);
 begin
   if ( aIndex >= 0 ) and ( aIndex < Count ) then begin
     FPoints[ aIndex ] := Value;
@@ -171,6 +160,14 @@ end;
 class function TDrawingFunc.GPColor(const aColor: TColor): TGPColor;
 begin
   Result := TGPColor.Create( Byte( aColor), Byte( aColor shr 8 ), Byte( aColor shr 16) );
+end;
+
+{ TDrawingPoint }
+
+constructor TDrawingPoint.Create(const aX, aY: Extended);
+begin
+  Self.X := aX;
+  Self.Y := aY;
 end;
 
 initialization

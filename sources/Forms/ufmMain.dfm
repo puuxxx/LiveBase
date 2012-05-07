@@ -10,14 +10,12 @@ inherited fmMain: TfmMain
   TextHeight = 16
   object pb: TPaintBox
     AlignWithMargins = True
-    Left = 220
+    Left = 3
     Top = 3
-    Width = 658
+    Width = 875
     Height = 502
     Margins.Bottom = 10
     Align = alClient
-    OnDragDrop = pbDragDrop
-    OnDragOver = pbDragOver
     OnMouseDown = pbMouseDown
     OnMouseMove = pbMouseMove
     OnMouseUp = pbMouseUp
@@ -26,54 +24,5 @@ inherited fmMain: TfmMain
     ExplicitTop = 0
     ExplicitWidth = 664
     ExplicitHeight = 515
-  end
-  object Panel1: TPanel
-    Left = 0
-    Top = 0
-    Width = 217
-    Height = 515
-    Align = alLeft
-    BevelOuter = bvNone
-    TabOrder = 0
-    object pbBackground: TPaintBox
-      AlignWithMargins = True
-      Left = 10
-      Top = 438
-      Width = 197
-      Height = 67
-      Margins.Left = 10
-      Margins.Top = 10
-      Margins.Right = 10
-      Margins.Bottom = 10
-      Align = alBottom
-      OnPaint = pbBackgroundPaint
-      ExplicitLeft = 0
-      ExplicitTop = 448
-      ExplicitWidth = 217
-    end
-    object ColorBox1: TColorBox
-      Left = 0
-      Top = 0
-      Width = 217
-      Height = 22
-      Align = alTop
-      Style = [cbStandardColors]
-      TabOrder = 0
-      OnChange = ColorBox1Change
-    end
-    object Panel2: TPanel
-      Left = 24
-      Top = 64
-      Width = 159
-      Height = 41
-      Caption = #1050#1074#1072#1076#1088#1072#1090
-      TabOrder = 1
-      OnMouseDown = Panel2MouseDown
-    end
-  end
-  object Timer1: TTimer
-    Interval = 20
-    Left = 440
-    Top = 224
   end
 end
