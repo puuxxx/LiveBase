@@ -117,7 +117,7 @@ begin
 
   FPen.Color := TDrawingFunc.GPColor( aBorderColor );
   FPen.Alignment := PenAlignmentInset;
-  FPen.Width := aBorderWidth;
+  FPen.Width := BW;
   FGraphics.DrawRectangle( FPen, X, Y, W, H );
 end;
 

@@ -21,6 +21,7 @@ interface
       FIndexPage             // Холст для рисования индексными цветами
                    : TDrawingPage;
       FCoordConverter : ICoordConverter;
+      FSelectBorder : TSelectBorder;
 
       function GetBitmap: TBitmap;
 

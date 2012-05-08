@@ -51,6 +51,8 @@ interface
       procedure SetParentFigure ( aValue : TFigure );
       function GetFirstChildFigure : TFigure;
       function GetLastChildFigure : TFigure;
+      function GetSelected: boolean;
+      procedure SetSelected(const Value: boolean);
     protected
       property BackgroundColor : TColor read GetBackgroundColor write SetBackgroundColor;
       property BorderColor : TColor read GetBorderColor write SetBorderColor;
@@ -60,6 +62,9 @@ interface
       procedure AfterCreate; virtual;
       procedure SetInitialCoord( const aX, aY : Extended ); virtual;
       // Полезные события
+      procedure OnSelect; virtual;
+      procedure OnUnSelect; virtual;
+      procedure OnSetParent( const aParent : TFigure ); virtual;
     public
       constructor Create;
       destructor Destroy; override;
@@ -69,8 +74,9 @@ interface
 
       // Работа с потомками
       procedure AddChildFigure( const aFigure : TFigure );
-      procedure RemoveChildFigure( aFigure : TFigure );
+      procedure RemoveChildFigure( const aFigure : TFigure );
       procedure ClearChildrensFigure;
+      procedure TakeOutChild( const aFigure : TFigure );
 
       // Обход всех элементов
       procedure ByPassChilds( const aProc : TFigureProc );
@@ -89,6 +95,8 @@ interface
       //
       property IndexColor : TColor read GetIndexColor write SetIndexColor;
       property Points : TPoints read FPoints;
+
+      property Selected : boolean read GetSelected write SetSelected;
     end;
 
 
@@ -105,7 +113,7 @@ interface
     strict private
       procedure CalcMyCoord;
     protected
-      procedure AfterCreate; override;
+      procedure AfterCreate ; override;
     public
       procedure GetRectPoints( var aP1, aP2 : TDrawingPoint ); override;
       procedure Draw( const aPage: TDrawingPage; const aIndexPage: TDrawingPage ); override;
@@ -115,7 +123,7 @@ interface
     TBox = class( TFigure )
     protected
       procedure SetInitialCoord( const aX, aY : Extended ); override;
-      procedure AfterCreate; override;
+      procedure OnSetParent( const aParent : TFigure ); override;
     public
       procedure GetRectPoints( var aP1, aP2 : TDrawingPoint ); override;
       procedure Draw( const aPage: TDrawingPage; const aIndexPage: TDrawingPage ); override;
@@ -305,24 +313,34 @@ begin
   //
 end;
 
+function TFigure.GetSelected: boolean;
+begin
+  Result := FSelected;
+end;
+
+procedure TFigure.OnSelect;
+begin
+//
+end;
+
+procedure TFigure.OnSetParent(const aParent: TFigure);
+begin
+//
+end;
+
+procedure TFigure.OnUnSelect;
+begin
+//
+end;
+
 procedure TFigure.SetInitialCoord( const aX, aY: Extended );
 begin
 //
 end;
 
-procedure TFigure.RemoveChildFigure( aFigure: TFigure );
-var
-  Prev, Next : TFigure;
+procedure TFigure.RemoveChildFigure( const aFigure: TFigure );
 begin
-  if not Assigned( aFigure ) then ContractFailure;
-  if aFigure.ParentFigure <> Self then ContractFailure;
-
-  Prev := aFigure.PrevFigure;
-  Next := aFigure.NextFigure;
-  if Assigned( Prev ) then Prev.NextFigure := Next;
-  if Assigned( Next ) then Next.PrevFigure := Prev;
-
-  if aFigure = FFirstChild then FFirstChild := Next;
+  TakeOutChild( aFigure );
   aFigure.Free;
 end;
 
@@ -354,14 +372,35 @@ end;
 
 procedure TFigure.SetParentFigure(aValue: TFigure);
 begin
-  if not Assigned( aValue ) then ContractFailure;
-
   FParent := aValue;
+  OnSetParent( aValue );
 end;
 
 procedure TFigure.SetPrevFigure(aValue: TFigure);
 begin
   FPrev := aValue;
+end;
+
+procedure TFigure.SetSelected(const Value: boolean);
+begin
+  FSelected := Value;
+  if Value then OnSelect else OnUnSelect;
+end;
+
+procedure TFigure.TakeOutChild(const aFigure: TFigure);
+var
+  Prev, Next : TFigure;
+begin
+  if not Assigned( aFigure ) then ContractFailure;
+  if aFigure.ParentFigure <> Self then ContractFailure;
+
+  Prev := aFigure.PrevFigure;
+  Next := aFigure.NextFigure;
+  if Assigned( Prev ) then Prev.NextFigure := Next;
+  if Assigned( Next ) then Next.PrevFigure := Prev;
+
+  if aFigure = FFirstChild then FFirstChild := Next;
+  aFigure.ParentFigure := nil;
 end;
 
 { TBackground }
@@ -374,12 +413,6 @@ begin
 end;
 
 { TBox }
-
-procedure TBox.AfterCreate;
-begin
-  inherited;
-  AddChildFigure( FigureFactory( ftSelectBorder ) );
-end;
 
 procedure TBox.Draw(const aPage: TDrawingPage; const aIndexPage: TDrawingPage);
 begin
@@ -395,6 +428,12 @@ begin
   aP2 := Points[1];
 end;
 
+procedure TBox.OnSetParent(const aParent: TFigure);
+begin
+  ClearChildrensFigure;
+  AddChildFigure( FigureFactory( ftSelectBorder ) );
+end;
+
 procedure TBox.SetInitialCoord( const aX, aY: Extended );
 begin
   Points.Clear;
@@ -403,12 +442,6 @@ begin
 end;
 
 { TSelectBorder }
-
-procedure TSelectBorder.AfterCreate;
-begin
-  inherited;
-  AddVertextPoints( Self );
-end;
 
 procedure TSelectBorder.CalcMyCoord;
 var
@@ -441,6 +474,11 @@ begin
   P2.Y := P2.Y + BORDER_IDENT;
 
   aP1 := P1; aP2 := P2;
+end;
+
+procedure TSelectBorder.AfterCreate;
+begin
+  AddVertextPoints( Self );
 end;
 
 end.
