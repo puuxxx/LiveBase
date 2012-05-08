@@ -4,7 +4,8 @@ interface
   uses {$IFDEF DEBUG} CodeSiteLogging, {$ENDIF}
     SysUtils, uBase, uEventModel, Graphics, System.UITypes,
     uDrawingCommand, System.Generics.Collections,
-    uDrawingEvent, Classes, System.Types, uDrawingPrimitive, uDrawingPage;
+    uDrawingEvent, Classes, System.Types, uDrawingPrimitive, uDrawingPage,
+    uVarArrays;
 
 
   type
@@ -41,6 +42,8 @@ interface
 
       function GetFigureByCoord( const aX, aY : integer ) : TFigure;
       procedure SelectFigure( const aFigure : TFigure );
+      procedure ExecuteCommand( const aCommandType : TDrawingCommandType;
+        const aFigure : TFigure; const aData : Variant );
     public
       constructor Create( const aEventModel : TEventModel );
       destructor Destroy; override;
@@ -168,6 +171,21 @@ begin
   inherited;
 end;
 
+procedure TDrawingArea.ExecuteCommand(const aCommandType: TDrawingCommandType;
+  const aFigure: TFigure; const aData: Variant);
+var
+  Cmd : TBaseDrawingCommand;
+begin
+  Cmd := DrawingCommandFactory( aCommandType );
+  Cmd.Execute( aFigure, aData );
+
+  if FCommands.Count > COMMANDS_LIST_MAX_SIZE then begin
+    FCommands.Delete( FCommands.Count - 1 );
+  end;
+
+  FCommands.Add( Cmd );
+end;
+
 function TDrawingArea.GetBitmap: TBitmap;
 begin
   FRoot.ByPassChilds( procedure( const aFigure : TFigure ) begin
@@ -183,13 +201,14 @@ var
   F : TFigure;
 begin
   Color := FIndexPage.GetScreenColor( aX, aY );
-  if Color = BAD_COLOR then exit;
 
   F := nil;
-  FRoot.ByPassChilds( procedure( const aFigure : TFigure; var aStop : boolean ) begin
-    aStop := aFigure.IndexColor = Color;
-    if aStop then F := aFigure;
-  end );
+  if Color <> BAD_COLOR then begin
+    FRoot.ByPassChilds( procedure( const aFigure : TFigure; var aStop : boolean ) begin
+      aStop := aFigure.IndexColor = Color;
+      if aStop then F := aFigure;
+    end );
+  end;
 
   if F = nil then F := FRoot;
 
@@ -223,8 +242,9 @@ begin
 
   // Передвинем выделенный объект
   if HasState( asPrimMove ) and Assigned( FSelectedFigure ) then begin
-    FSelectedFigure.Move( FCoordConverter.ScreenToLog( aX - FX ),
-      FCoordConverter.ScreenToLog( aY - FY ) );
+    ExecuteCommand( dctMoveFigure, FSelectedFigure,
+      VA_Of( [ FCoordConverter.ScreenToLog( aX - FX ),
+               FCoordConverter.ScreenToLog( aY - FY ) ] ) );
     FEventModel.Event( EVENT_PLEASE_REPAINT );
   end;
 
