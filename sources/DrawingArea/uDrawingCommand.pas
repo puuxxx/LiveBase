@@ -15,6 +15,10 @@ type
   end;
 
   TMoveDrawingCommand = class ( TBaseDrawingCommand )
+  private
+    FFigureID : string;
+    FData : variant;
+  public
     procedure Execute( const aFigure : TFigure; const aData : Variant ); override;
   end;
 
@@ -36,13 +40,9 @@ end;
 
 procedure TMoveDrawingCommand.Execute(const aFigure: TFigure;
   const aData: Variant);
-var
-  Dx, Dy : Extended;
 begin
-  Dx := VA_Get( aData, 0 );
-  Dy := VA_Get( aData, 1 );
-
-  aFigure.Move( Dx, Dy );
+  FFigureID := aFigure.IDAsStr;
+  FData := aData;
 end;
 
 end.

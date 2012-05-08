@@ -32,7 +32,8 @@ interface
       FHighlighted : TFigure;
 
       // Координаты при перемещении курсора
-      FX, FY : integer;
+      FStartMoveX, FStartMoveY : integer;
+      FCurX, FCurY : integer;
 
       function GetBitmap: TBitmap;
 
@@ -51,7 +52,7 @@ interface
       procedure OnNewSize( const aWidth, aHeight : integer );
       procedure OnMouseMove( const aX, aY : integer );
       procedure OnMouseDown( Button: TMouseButton; X, Y: Integer );
-      procedure OnMouseUp( Button: TMouseButton; X, Y: Integer );
+      procedure OnMouseUp( Button: TMouseButton; aX, aY: Integer );
 
       procedure CreateFigure( const aType : TFigureType; const aX, aY : integer );
 
@@ -230,10 +231,14 @@ begin
   // попробуем выделить фигуру
   SelectFigure( Fig );
 
-  if CanFigureMove( Fig ) then AddState( asPrimMove );
+  if CanFigureMove( Fig ) then begin
+    AddState( asPrimMove );
+    FStartMoveX := X;
+    FStartMoveY := Y;
+  end;
 
-  FX := X;
-  FY := Y;
+  FCurX := X;
+  FCurY := Y;
 end;
 
 procedure TDrawingArea.OnMouseMove( const aX, aY: integer );
@@ -242,19 +247,23 @@ begin
 
   // Передвинем выделенный объект
   if HasState( asPrimMove ) and Assigned( FSelectedFigure ) then begin
-    ExecuteCommand( dctMoveFigure, FSelectedFigure,
-      VA_Of( [ FCoordConverter.ScreenToLog( aX - FX ),
-               FCoordConverter.ScreenToLog( aY - FY ) ] ) );
+    FSelectedFigure.Move( FCoordConverter.ScreenToLog( aX - FCurX ),
+      FCoordConverter.ScreenToLog( aY - FCurY ) );
     FEventModel.Event( EVENT_PLEASE_REPAINT );
   end;
 
-  FX := aX;
-  FY := aY;
+  FCurX := aX;
+  FCurY := aY;
 end;
 
-procedure TDrawingArea.OnMouseUp(Button: TMouseButton; X, Y: Integer);
+procedure TDrawingArea.OnMouseUp(Button: TMouseButton; aX, aY: Integer);
 begin
-  DelState( asPrimMove );
+  if HasState( asPrimMove ) then begin
+    ExecuteCommand( dctMoveFigure, FSelectedFigure,
+      VA_Of( [ FCoordConverter.ScreenToLog( aX - FStartMoveX ),
+               FCoordConverter.ScreenToLog( aY - FStartMoveY ) ] ) );
+    DelState( asPrimMove );
+  end;
 end;
 
 procedure TDrawingArea.OnNewSize(const aWidth, aHeight: integer);
