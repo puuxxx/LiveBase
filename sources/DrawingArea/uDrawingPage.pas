@@ -40,7 +40,10 @@ interface
 
       // рисуем квадрат
       procedure DrawFillRect( const aP1, aP2 : TDrawingPoint;
-        const aBackgroundColor, aBorderColor : TColor; const aBorderWidth : byte );
+        const aBackgroundColor, aBorderColor : TColor; const aBorderWidth : Extended );
+      // рисуем рамку
+      procedure DrawRect( const aP1, aP2 : TDrawingPoint; const aBorderColor : TColor;
+        const aBorderWidth : Extended );
 
       procedure SetScreenSize( const aWidth, aHeight : integer );
       function GetBitMap : TBitMap;
@@ -98,17 +101,16 @@ begin
 end;
 
 procedure TDrawingPage.DrawFillRect( const aP1, aP2 : TDrawingPoint;
-  const aBackgroundColor, aBorderColor: TColor; const aBorderWidth: byte);
+  const aBackgroundColor, aBorderColor: TColor; const aBorderWidth: Extended);
 var
   X1, Y1, X2, Y2,
-  X, Y, H, W : integer;
-
+  X, Y, H, W, BW : integer;
 begin
   FBrush.Color := TDrawingFunc.GPColor( aBackgroundColor );
 
   FCoordConverter.LogToScreen( aP1.X, aP1.Y, X1, Y1 );
   FCoordConverter.LogToScreen( aP2.X, aP2.Y, X2, Y2 );
-
+  BW := FCoordConverter.LogToScreen( aBorderWidth );
   TDrawingFunc.GetXYHW( X1, Y1, X2, Y2, true, X, Y, W, H );
 
   FGraphics.FillRectangle( FBrush, X, Y, W, H );
@@ -116,6 +118,23 @@ begin
   FPen.Color := TDrawingFunc.GPColor( aBorderColor );
   FPen.Alignment := PenAlignmentInset;
   FPen.Width := aBorderWidth;
+  FGraphics.DrawRectangle( FPen, X, Y, W, H );
+end;
+
+procedure TDrawingPage.DrawRect(const aP1, aP2: TDrawingPoint;
+  const aBorderColor: TColor; const aBorderWidth: Extended );
+var
+  X1, X2, Y1, Y2, X, Y, W, H, BW : integer;
+begin
+  FPen.Color := TDrawingFunc.GPColor( aBorderColor );
+
+  FCoordConverter.LogToScreen( aP1.X, aP1.Y, X1, Y1 );
+  FCoordConverter.LogToScreen( aP2.X, aP2.Y, X2, Y2 );
+  BW := FCoordConverter.LogToScreen( aBorderWidth );
+
+  TDrawingFunc.GetXYHW( X1, Y1, X2, Y2, false, X, Y, W, H );
+
+  FPen.Width := BW;
   FGraphics.DrawRectangle( FPen, X, Y, W, H );
 end;
 

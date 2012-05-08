@@ -96,7 +96,7 @@ begin
   SetInitialCoord( P.X, P.Y );
 
   aPage.DrawFillRect( Points[0], Points[1], BackgroundColor, BorderColor, 1 );
-  aPage.DrawFillRect( Points[0], Points[1], IndexColor, IndexColor, 1 );
+  aIndexPage.DrawFillRect( Points[0], Points[1], IndexColor, IndexColor, 1 );
 end;
 
 procedure TVertexPoint.SetInitialCoord(const aX, aY: Extended);
@@ -109,8 +109,11 @@ end;
 { TTopLeftVertexPoint }
 
 function TTopLeftVertexPoint.GetPoint: TDrawingPoint;
+var
+  P1, P2 : TDrawingPoint;
 begin
-  Result := ParentFigure.Points[0];
+  ParentFigure.GetRectPoints( p1, p2 );
+  Result := p1;
 end;
 
 { TTopCenterVertexPoint }
@@ -123,15 +126,23 @@ end;
 { TTopRightVertexPoint }
 
 function TTopRightVertexPoint.GetPoint: TDrawingPoint;
+var
+  P1, P2 : TDrawingPoint;
 begin
-  Result := TDrawingPoint.Create( ParentFigure.Points[1].X, ParentFigure.Points[0].Y );
+  ParentFigure.GetRectPoints( p1, p2 );
+
+  Result := TDrawingPoint.Create( p2.X, p1.Y );
 end;
 
 { TBottomLeftVertexPoint }
 
 function TBottomLeftVertexPoint.GetPoint: TDrawingPoint;
+var
+  P1, P2 : TDrawingPoint;
 begin
-  Result := TDrawingPoint.Create( ParentFigure.Points[0].X, ParentFigure.Points[1].Y );
+  ParentFigure.GetRectPoints( p1, p2 );
+
+  Result := TDrawingPoint.Create( p1.X, p2.Y );
 end;
 
 { TBottomCenterVertexPoint }
@@ -144,8 +155,12 @@ end;
 { TBottomRightVertexPoint }
 
 function TBottomRightVertexPoint.GetPoint: TDrawingPoint;
+var
+  P1, P2 : TDrawingPoint;
 begin
-  Result := ParentFigure.Points[1];
+  ParentFigure.GetRectPoints( p1, p2 );
+
+  Result := p2;
 end;
 
 { TLeftCenterVertexPoint }

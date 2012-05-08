@@ -67,6 +67,7 @@ begin
   P := pb.ScreenToClient( P );
 
   FArea.CreateFigure( ftBox, P.X, P.Y );
+  pb.Repaint;
 end;
 
 procedure TfmMain.pbMouseDown(Sender: TObject; Button: TMouseButton;

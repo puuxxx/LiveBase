@@ -7,7 +7,7 @@ interface
   {$M+}
 
   type
-    TFigureType = ( ftNone, ftBackground, ftBox );
+    TFigureType = ( ftNone, ftBackground, ftBox, ftSelectBorder );
 
     TFigure = class;
     TFigureClass = class of TFigure;
@@ -30,6 +30,9 @@ interface
 
       // Толщина рамки
       FBorderWidth : byte;
+
+      // Признак выделенного объекта
+      FSelected : boolean;
 
       //
       procedure SetBackgroundColor( aValue : TColor );
@@ -56,6 +59,7 @@ interface
       // Дополнительные действия после создания
       procedure AfterCreate; virtual;
       procedure SetInitialCoord( const aX, aY : Extended ); virtual;
+      // Полезные события
     public
       constructor Create;
       destructor Destroy; override;
@@ -71,6 +75,9 @@ interface
       // Обход всех элементов
       procedure ByPassChilds( const aProc : TFigureProc );
 
+      // Получаем крайнюю левую и икрайнюю правую точку фигуры для рисования рамки
+      procedure GetRectPoints( var aP1, aP2 : TDrawingPoint ); virtual;
+
       // Положение среди списка фигур
       property ParentFigure : TFigure read GetParentFigure write SetParentFigure;
       property NextFigure : TFigure read GetNextFigure write SetNextFigure;
@@ -78,6 +85,7 @@ interface
 
       property FirstChildFigure : TFigure read GetFirstChildFigure;
       property LastChildFigure : TFigure read GetLastChildFigure;
+
       //
       property IndexColor : TColor read GetIndexColor write SetIndexColor;
       property Points : TPoints read FPoints;
@@ -92,12 +100,24 @@ interface
       property BackgroundColor;
     end;
 
+    // Рамка фигуры с квадратной рамкой выделения
+    TSelectBorder = class( TFigure )
+    strict private
+      procedure CalcMyCoord;
+    protected
+      procedure AfterCreate; override;
+    public
+      procedure GetRectPoints( var aP1, aP2 : TDrawingPoint ); override;
+      procedure Draw( const aPage: TDrawingPage; const aIndexPage: TDrawingPage ); override;
+    end;
+
     // Закрашенный квадрат
     TBox = class( TFigure )
     protected
       procedure SetInitialCoord( const aX, aY : Extended ); override;
       procedure AfterCreate; override;
     public
+      procedure GetRectPoints( var aP1, aP2 : TDrawingPoint ); override;
       procedure Draw( const aPage: TDrawingPage; const aIndexPage: TDrawingPage ); override;
     published
       property BackgroundColor;
@@ -116,6 +136,7 @@ uses
 const
   DEFAULT_FIGURE_WIDTH = 100;
   DEFAULT_FIGURE_HEIGHT = 100;
+  BORDER_IDENT = 6;
 
 function FigureFactory( const aFigureType : TFigureType ) : TFigure;
 begin
@@ -125,7 +146,7 @@ end;
 function FigureFactory( const aFigureType : TFigureType; const aX, aY : Extended ) : TFigure;
 const
   FigureClasses : array[TFigureType] of TFigureClass = (
-    nil, TBackground, TBox
+    nil, TBackground, TBox, TSelectBorder
   );
 var
   C : TFigureClass;
@@ -210,6 +231,7 @@ begin
   FBackgroundColor := DefColor;
   FBorderColor := DefColor;
   FBorderWidth := 1;
+  FSelected := false;
 end;
 
 destructor TFigure.Destroy;
@@ -278,6 +300,11 @@ begin
   Result := FPrev;
 end;
 
+procedure TFigure.GetRectPoints(var aP1, aP2: TDrawingPoint);
+begin
+  //
+end;
+
 procedure TFigure.SetInitialCoord( const aX, aY: Extended );
 begin
 //
@@ -341,6 +368,7 @@ end;
 
 procedure TBackground.Draw(const aPage: TDrawingPage; const aIndexPage: TDrawingPage);
 begin
+  BackgroundColor := clBlue;
   aPage.Clear( BackgroundColor );
   aIndexPage.Clear( IndexColor );
 end;
@@ -350,7 +378,7 @@ end;
 procedure TBox.AfterCreate;
 begin
   inherited;
-  AddVertextPoints( Self );
+  AddChildFigure( FigureFactory( ftSelectBorder ) );
 end;
 
 procedure TBox.Draw(const aPage: TDrawingPage; const aIndexPage: TDrawingPage);
@@ -361,11 +389,58 @@ begin
   aPage.DrawFillRect( Points[0], Points[1], IndexColor, IndexColor, BorderWidth );
 end;
 
+procedure TBox.GetRectPoints(var aP1, aP2: TDrawingPoint);
+begin
+  aP1 := Points[0];
+  aP2 := Points[1];
+end;
+
 procedure TBox.SetInitialCoord( const aX, aY: Extended );
 begin
   Points.Clear;
   Points.Add( aX - DEFAULT_FIGURE_WIDTH div 2, aY - DEFAULT_FIGURE_HEIGHT div 2 );
   Points.Add( aX + DEFAULT_FIGURE_WIDTH div 2, aY + DEFAULT_FIGURE_HEIGHT div 2 );
+end;
+
+{ TSelectBorder }
+
+procedure TSelectBorder.AfterCreate;
+begin
+  inherited;
+  AddVertextPoints( Self );
+end;
+
+procedure TSelectBorder.CalcMyCoord;
+var
+  P1, P2 : TDrawingPoint;
+begin
+  GetRectPoints( P1, P2 );
+  Points.Clear;
+  Points.Add( P1 );
+  Points.Add( P2 );
+end;
+
+procedure TSelectBorder.Draw(const aPage, aIndexPage: TDrawingPage);
+begin
+  if ParentFigure = nil then ContractFailure;
+
+  CalcMyCoord;
+
+  aPage.DrawRect( Points[0], Points[1], BorderColor, BorderWidth );
+end;
+
+procedure TSelectBorder.GetRectPoints(var aP1, aP2: TDrawingPoint);
+var
+  P1, P2 : TDrawingPoint;
+begin
+  ParentFigure.GetRectPoints( p1, p2 );
+
+  P1.X := P1.X - BORDER_IDENT;
+  P1.Y := P1.Y - BORDER_IDENT;
+  P2.X := P2.X + BORDER_IDENT;
+  P2.Y := P2.Y + BORDER_IDENT;
+
+  aP1 := P1; aP2 := P2;
 end;
 
 end.
