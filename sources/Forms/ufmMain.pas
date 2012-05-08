@@ -52,6 +52,8 @@ end;
 procedure TfmMain.FormCreate(Sender: TObject);
 begin
   FArea := TDrawingArea.Create(Env.EventModel);
+
+  Env.EventModel.RegisterSubscriber( EVENT_PLEASE_REPAINT, Self );
 end;
 
 procedure TfmMain.FormResize(Sender: TObject);
@@ -95,7 +97,9 @@ end;
 
 procedure TfmMain.ProcessEvent( const aEventID: TEventID; const aEventData: variant );
 begin
-//
+  if aEventID = EVENT_PLEASE_REPAINT then begin
+    pb.Repaint;
+  end;
 end;
 
 

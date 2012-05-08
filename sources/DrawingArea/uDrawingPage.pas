@@ -3,6 +3,10 @@ unit uDrawingPage;
 interface
 
   uses uBase, System.SysUtils, Graphics, GDIPlus, uDrawingSupport;
+
+  const
+    BAD_COLOR = -1;
+
   type
 
     // Конвертер логических координат в экранные
@@ -45,6 +49,7 @@ interface
       procedure DrawRect( const aP1, aP2 : TDrawingPoint; const aBorderColor : TColor;
         const aBorderWidth : Extended );
 
+      function GetScreenColor ( const aX, aY : integer ) : TColor;
       procedure SetScreenSize( const aWidth, aHeight : integer );
       function GetBitMap : TBitMap;
     end;
@@ -146,6 +151,15 @@ end;
 function TDrawingPage.GetBitMap: TBitMap;
 begin
   Result := FBitMap;
+end;
+
+function TDrawingPage.GetScreenColor(const aX, aY: integer): TColor;
+begin
+  if ( aX < FBitMap.Width ) and ( aY < FBitmap.Height ) then begin
+    Result := FBitMap.Canvas.Pixels[ aX, aY ];
+  end else begin
+    Result := BAD_COLOR;
+  end;
 end;
 
 procedure TDrawingPage.SetScreenSize(const aWidth, aHeight: integer);

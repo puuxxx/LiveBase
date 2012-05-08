@@ -20,14 +20,24 @@ interface
       FPage,                 // Холст для рисования
       FIndexPage             // Холст для рисования индексными цветами
                    : TDrawingPage;
+      // конвертер координат
       FCoordConverter : ICoordConverter;
+
+      // выделенная фигура и рамка
       FSelectBorder : TSelectBorder;
+      FSelectedFigure : TFigure;
+
+      // Фигура под курсором
+      FHighlighted : TFigure;
 
       function GetBitmap: TBitmap;
 
       procedure AddState ( const aState : TAreaState );
       procedure DelState ( const aState : TAreaState );
       function HasState ( const aState : TAreaState ) : boolean;
+
+      function GetFigureByCoord( const aX, aY : integer ) : TFigure;
+      procedure SelectFigure( const aFigure : TFigure );
     public
       constructor Create( const aEventModel : TEventModel );
       destructor Destroy; override;
@@ -70,6 +80,9 @@ begin
   OnNewSize( 10, 10 );
 
   FRoot := TBackground.Create;
+
+  FSelectBorder := TSelectBorder.Create;
+  FHighlighted := nil;
 end;
 
 procedure TDrawingArea.CreateFigure( const aType: TFigureType;
@@ -92,16 +105,36 @@ begin
   FreeAndNil( FPage );
   FreeANdNil( FIndexPage );
   FCoordConverter := nil;
+  FreeAndNil( FSelectBorder );
   inherited;
 end;
 
 function TDrawingArea.GetBitmap: TBitmap;
 begin
-  FRoot.ByPassChilds( procedure( aFigure : TFigure ) begin
+  FRoot.ByPassChilds( procedure( const aFigure : TFigure ) begin
     aFigure.Draw( FPage, FIndexPage );
   end );
 
   Result := FPage.GetBitMap;
+end;
+
+function TDrawingArea.GetFigureByCoord(const aX, aY: integer): TFigure;
+var
+  Color : TColor;
+  F : TFigure;
+begin
+  Color := FIndexPage.GetScreenColor( aX, aY );
+  if Color = BAD_COLOR then exit;
+
+  F := nil;
+  FRoot.ByPassChilds( procedure( const aFigure : TFigure; var aStop : boolean ) begin
+    aStop := aFigure.IndexColor = Color;
+    if aStop then F := aFigure;
+  end );
+
+  if F = nil then F := FRoot;
+
+  Result := F;
 end;
 
 function TDrawingArea.HasState(const aState: TAreaState): boolean;
@@ -110,13 +143,20 @@ begin
 end;
 
 procedure TDrawingArea.OnMouseDown(Button: TMouseButton; X, Y: Integer);
+var
+  Fig : TFigure;
 begin
- //
+  // определяем фигуру под курсором
+  Fig := GetFigureByCoord( X, Y );
+
+  // попробуем выделить фигуру
+  SelectFigure( Fig );
+
 end;
 
 procedure TDrawingArea.OnMouseMove( const aX, aY: integer );
 begin
-//
+  FHighlighted := GetFigureByCoord( aX, aY );
 end;
 
 procedure TDrawingArea.OnMouseUp(Button: TMouseButton; X, Y: Integer);
@@ -127,7 +167,47 @@ end;
 procedure TDrawingArea.OnNewSize(const aWidth, aHeight: integer);
 begin
   FPage.SetScreenSize( aWidth, aHeight );
+  FIndexPage.SetScreenSize( aWidth, aHeight );
 end;
 
+
+procedure TDrawingArea.SelectFigure(const aFigure: TFigure);
+const
+  // классы фигур, которые можно выделять
+  AllowSelectFigureClasses : array[0..1] of TFigureClass = (
+    TBox, TBackground
+  );
+
+  // классы фигур для которых разрешены рамки
+  AllowFigureBorderClasses : array[0..0] of TFigureClass = (
+    TBox
+  );
+
+var
+  i : integer;
+  AllowSelect, AllowBorder : boolean;
+begin
+  // можно ли выделять тек. фигуру
+  for I := 0 to length( AllowSelectFigureClasses )-1 do begin
+    AllowSelect := aFigure is AllowSelectFigureClasses[i];
+    if AllowSelect then break;
+  end;
+
+  if not AllowSelect then exit;
+
+  // можно ли фигуре устанавливать рамку
+  for I := 0 to length( AllowFigureBorderClasses )-1 do begin
+    AllowBorder := aFigure is AllowFigureBorderClasses[i];
+    if AllowBorder then break;
+  end;
+
+  // убираем рамку из тек. фигуры
+  if Assigned( FSelectedFigure ) then FSelectedFigure.TakeOutChild( FSelectBorder );
+  FSelectedFigure := aFigure;
+  if AllowBorder then aFigure.AddChildFigure( FSelectBorder );
+
+  // попросим нас перерисовать
+  FEventModel.Event( EVENT_PLEASE_REPAINT );
+end;
 
 end.

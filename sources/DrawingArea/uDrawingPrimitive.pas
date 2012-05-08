@@ -11,7 +11,9 @@ interface
 
     TFigure = class;
     TFigureClass = class of TFigure;
-    TFigureProc = reference to procedure ( aFigure : TFigure );
+    TFigureProc = reference to procedure ( const aFigure : TFigure );
+    TByPassProc = reference to procedure( const aFigure : TFigure; var aStop : boolean );
+
     TFigure = class( TBaseSubscriber )
     strict private
       // Координатные точки. Содержат основные координаты фигуры
@@ -79,7 +81,8 @@ interface
       procedure TakeOutChild( const aFigure : TFigure );
 
       // Обход всех элементов
-      procedure ByPassChilds( const aProc : TFigureProc );
+      procedure ByPassChilds( const aProc : TFigureProc ); overload;
+      procedure ByPassChilds( const aProc : TByPassProc ); overload;
 
       // Получаем крайнюю левую и икрайнюю правую точку фигуры для рисования рамки
       procedure GetRectPoints( var aP1, aP2 : TDrawingPoint ); virtual;
@@ -123,7 +126,6 @@ interface
     TBox = class( TFigure )
     protected
       procedure SetInitialCoord( const aX, aY : Extended ); override;
-      procedure OnSetParent( const aParent : TFigure ); override;
     public
       procedure GetRectPoints( var aP1, aP2 : TDrawingPoint ); override;
       procedure Draw( const aPage: TDrawingPage; const aIndexPage: TDrawingPage ); override;
@@ -200,6 +202,34 @@ end;
 procedure TFigure.AfterCreate;
 begin
 //
+end;
+
+procedure TFigure.ByPassChilds(const aProc: TByPassProc);
+
+  procedure ByPass( const aFigure : TFigure; var aStop : boolean );
+  var
+    F : TFigure;
+  begin
+    aProc( aFigure, aStop );
+    if aStop then exit;
+
+    F := aFigure.FirstChildFigure;
+    while Assigned( F ) do begin
+      if Assigned( F.FirstChildFigure ) then begin
+        ByPass( F, aStop )
+      end else begin
+        aProc( F, aStop );
+      end;
+      if aStop then exit;
+      F := F.NextFigure;
+    end;
+  end;
+
+  var
+    Stop : boolean;
+begin
+  Stop := false;
+  ByPass( Self, Stop );
 end;
 
 procedure TFigure.ByPassChilds(const aProc: TFigureProc);
@@ -392,7 +422,9 @@ var
   Prev, Next : TFigure;
 begin
   if not Assigned( aFigure ) then ContractFailure;
-  if aFigure.ParentFigure <> Self then ContractFailure;
+
+  // aFigure нет в дочерних элементах Self
+  if aFigure.ParentFigure <> Self then exit;
 
   Prev := aFigure.PrevFigure;
   Next := aFigure.NextFigure;
@@ -419,19 +451,13 @@ begin
   if Points.Count <> 2 then ContractFailure;
 
   aPage.DrawFillRect( Points[0], Points[1], BackgroundColor, BorderColor, BorderWidth );
-  aPage.DrawFillRect( Points[0], Points[1], IndexColor, IndexColor, BorderWidth );
+  aIndexPage.DrawFillRect( Points[0], Points[1], IndexColor, IndexColor, BorderWidth );
 end;
 
 procedure TBox.GetRectPoints(var aP1, aP2: TDrawingPoint);
 begin
   aP1 := Points[0];
   aP2 := Points[1];
-end;
-
-procedure TBox.OnSetParent(const aParent: TFigure);
-begin
-  ClearChildrensFigure;
-  AddChildFigure( FigureFactory( ftSelectBorder ) );
 end;
 
 procedure TBox.SetInitialCoord( const aX, aY: Extended );
