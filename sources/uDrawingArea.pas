@@ -24,7 +24,7 @@ interface
       FCoordConverter : ICoordConverter;
 
       // выделенная фигура и рамка
-      FSelectBorder : TSelectBorder;
+      FSelectBorder,
       FSelectedFigure : TFigure;
 
       // Фигура под курсором
@@ -79,9 +79,8 @@ begin
 
   OnNewSize( 10, 10 );
 
-  FRoot := TBackground.Create;
-
-  FSelectBorder := TSelectBorder.Create;
+  FRoot := FigureFactory( ftBackground );
+  FSelectBorder := FigureFactory( ftSelectBorder );
   FHighlighted := nil;
 end;
 

@@ -64,8 +64,8 @@ interface
 implementation
 
 const
-  DEFAULT_POINT_WIDTH = 3;
-  DEFAULT_POINT_HEIGHT = 3;
+  DEFAULT_POINT_WIDTH = 6;
+  DEFAULT_POINT_HEIGHT = 6;
 
 procedure AddVertextPoints( const aFigure : TFigure );
 const
