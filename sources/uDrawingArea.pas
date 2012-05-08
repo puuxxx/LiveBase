@@ -30,6 +30,9 @@ interface
       // Фигура под курсором
       FHighlighted : TFigure;
 
+      // Координаты при перемещении курсора
+      FX, FY : integer;
+
       function GetBitmap: TBitmap;
 
       procedure AddState ( const aState : TAreaState );
@@ -57,6 +60,63 @@ implementation
 const
   COMMANDS_LIST_MAX_SIZE = 10;
   CONTROL_MOUSE_BUTTON : TMouseButton = TMouseButton.mbLeft;
+
+  // классы фигур, которые можно выделять
+  AllowSelectFigureClasses : array[0..1] of TFigureClass = (
+    TBox, TBackground
+  );
+
+  // классы фигур для которых разрешены рамки
+  AllowFigureBorderClasses : array[0..0] of TFigureClass = (
+    TBox
+  );
+
+  // классы фигур, которые можно перемещать
+  AllowFigureMoveClasses : array[0..0] of TFigureClass = (
+    TBox
+  );
+
+// вспомогательные процедуру для внутреннего использования
+
+function CanFigureMove ( const aFigure : TFigure ) : boolean;
+var
+  i : integer;
+begin
+  Result := false;
+  for I := 0 to length( AllowFigureMoveClasses ) - 1 do begin
+    if aFigure is AllowFigureMoveClasses[i] then begin
+      Result := true;
+      exit;
+    end;
+  end;
+end;
+
+function CanFigureSelect ( const aFigure : TFigure ) : boolean;
+var
+  i : integer;
+begin
+  Result := false;
+  for I := 0 to length( AllowSelectFigureClasses ) - 1 do begin
+    if aFigure is AllowSelectFigureClasses[i] then begin
+      Result := true;
+      exit;
+    end;
+  end;
+end;
+
+function CanFigureBorder ( const aFigure : TFigure ) : boolean;
+var
+  i : integer;
+begin
+  Result := false;
+  for I := 0 to length( AllowFigureBorderClasses ) - 1 do begin
+    if aFigure is AllowFigureBorderClasses[i] then begin
+      Result := true;
+      exit;
+    end;
+  end;
+end;
+
 
 { TDrawingArea }
 
@@ -151,16 +211,30 @@ begin
   // попробуем выделить фигуру
   SelectFigure( Fig );
 
+  if CanFigureMove( Fig ) then AddState( asPrimMove );
+
+  FX := X;
+  FY := Y;
 end;
 
 procedure TDrawingArea.OnMouseMove( const aX, aY: integer );
 begin
   FHighlighted := GetFigureByCoord( aX, aY );
+
+  // Передвинем выделенный объект
+  if HasState( asPrimMove ) and Assigned( FSelectedFigure ) then begin
+    FSelectedFigure.Move( FCoordConverter.ScreenToLog( aX - FX ),
+      FCoordConverter.ScreenToLog( aY - FY ) );
+    FEventModel.Event( EVENT_PLEASE_REPAINT );
+  end;
+
+  FX := aX;
+  FY := aY;
 end;
 
 procedure TDrawingArea.OnMouseUp(Button: TMouseButton; X, Y: Integer);
 begin
-//
+  DelState( asPrimMove );
 end;
 
 procedure TDrawingArea.OnNewSize(const aWidth, aHeight: integer);
@@ -171,39 +245,15 @@ end;
 
 
 procedure TDrawingArea.SelectFigure(const aFigure: TFigure);
-const
-  // классы фигур, которые можно выделять
-  AllowSelectFigureClasses : array[0..1] of TFigureClass = (
-    TBox, TBackground
-  );
-
-  // классы фигур для которых разрешены рамки
-  AllowFigureBorderClasses : array[0..0] of TFigureClass = (
-    TBox
-  );
-
-var
-  i : integer;
-  AllowSelect, AllowBorder : boolean;
 begin
-  // можно ли выделять тек. фигуру
-  for I := 0 to length( AllowSelectFigureClasses )-1 do begin
-    AllowSelect := aFigure is AllowSelectFigureClasses[i];
-    if AllowSelect then break;
-  end;
 
-  if not AllowSelect then exit;
-
-  // можно ли фигуре устанавливать рамку
-  for I := 0 to length( AllowFigureBorderClasses )-1 do begin
-    AllowBorder := aFigure is AllowFigureBorderClasses[i];
-    if AllowBorder then break;
-  end;
+  if not CanFigureSelect( aFigure ) then exit;
 
   // убираем рамку из тек. фигуры
   if Assigned( FSelectedFigure ) then FSelectedFigure.TakeOutChild( FSelectBorder );
   FSelectedFigure := aFigure;
-  if AllowBorder then aFigure.AddChildFigure( FSelectBorder );
+  // добавляем рамку
+  if CanFigureBorder( aFigure ) then aFigure.AddChildFigure( FSelectBorder );
 
   // попросим нас перерисовать
   FEventModel.Event( EVENT_PLEASE_REPAINT );

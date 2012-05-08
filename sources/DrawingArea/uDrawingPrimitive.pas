@@ -87,6 +87,9 @@ interface
       // Получаем крайнюю левую и икрайнюю правую точку фигуры для рисования рамки
       procedure GetRectPoints( var aP1, aP2 : TDrawingPoint ); virtual;
 
+      // Перемещение фигуры
+      procedure Move( const aDX, aDY : Extended );
+
       // Положение среди списка фигур
       property ParentFigure : TFigure read GetParentFigure write SetParentFigure;
       property NextFigure : TFigure read GetNextFigure write SetNextFigure;
@@ -346,6 +349,19 @@ end;
 function TFigure.GetSelected: boolean;
 begin
   Result := FSelected;
+end;
+
+procedure TFigure.Move(const aDX, aDY: Extended);
+var
+  i : integer;
+  P : TDrawingPoint;
+begin
+  for I := 0 to Points.Count - 1 do begin
+    P := Points[i];
+    P.X := P.X + aDX;
+    P.Y := P.Y + aDY;
+    Points[i] := P;
+  end;
 end;
 
 procedure TFigure.OnSelect;
