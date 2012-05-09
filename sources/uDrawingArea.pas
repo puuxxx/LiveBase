@@ -150,12 +150,9 @@ end;
 
 procedure TDrawingArea.CreateFigure( const aType: TFigureType;
   const aX, aY: integer );
-var
-  F : TFigure;
 begin
-  F := FigureFactory( aType, FCoordConverter.ScreenToLog( aX ),
-    FCoordConverter.ScreenToLog( aY ) );
-  if Assigned( F ) then FRoot.AddChildFigure( F );
+  ExecuteCommand( dctCreateFigure, nil, VA_Of( [ aType,
+    FCoordConverter.ScreenToLog( aX ), FCoordConverter.ScreenToLog( aY ) ] ) );
 end;
 
 procedure TDrawingArea.DelState(const aState: TAreaState);
@@ -177,7 +174,7 @@ procedure TDrawingArea.ExecuteCommand(const aCommandType: TDrawingCommandType;
 var
   Cmd : TBaseDrawingCommand;
 begin
-  Cmd := DrawingCommandFactory( aCommandType );
+  Cmd := DrawingCommandFactory( aCommandType, FRoot );
   Cmd.Execute( aFigure, aData );
 
   if FCommands.Count > COMMANDS_LIST_MAX_SIZE then begin
